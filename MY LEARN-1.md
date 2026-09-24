@@ -200,5 +200,6 @@
   - Real-time customer reviews and star rating breakdown with admin moderation.
   - Admin passcode security gate (`AdminPasscodeModal`) with passcode `aura2026`.
   - Dual-mode Firebase integration (local reactive + live Firestore ready).
+  - Git repository initialized on `main`, staged, committed, and linked to GitHub remote (`https://github.com/muhammadsaadahmad1/project-1.git`).
 - **v1.1 (Upcoming Milestones)**:
   - To be updated based on user direction (e.g. backend Firebase rules deployment, custom branding tweaks, removing or customizing hero trust cards).
