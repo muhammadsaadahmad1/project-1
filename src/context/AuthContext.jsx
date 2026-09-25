@@ -26,9 +26,10 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [isAdmin, setIsAdmin] = useState(() => {
-    // Clean up stale permanent local storage clearance if present
+    // Always require passcode on every page load — wipe any stale admin flag
     localStorage.removeItem("aura_is_admin");
-    return sessionStorage.getItem("aura_is_admin") === "true";
+    sessionStorage.removeItem("aura_is_admin");
+    return false;
   });
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
