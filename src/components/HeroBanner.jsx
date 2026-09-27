@@ -158,7 +158,7 @@ export const HeroBanner = ({ onExploreClick }) => {
             </div>
             <div>
               <h4 style={{ fontSize: "0.95rem", color: "#fff", marginBottom: "0.2rem", fontWeight: 600 }}>Live Inventory Tracking</h4>
-              <p style={{ fontSize: "0.8rem", color: "#a1a1aa" }}>Real-time stock deduction powered by Firebase</p>
+              <p style={{ fontSize: "0.8rem", color: "#a1a1aa" }}>Inventory updates powered by Supabase</p>
             </div>
           </div>
 

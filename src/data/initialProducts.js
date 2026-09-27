@@ -267,7 +267,6 @@ export const APP_SETTINGS = {
   currencySymbol: "$",
   currencyCode: "USD",
   adminWhatsappNumber: "+923159146234",
-  adminPasscode: "aura2026",
   lowStockThreshold: 5,
   freeShippingThreshold: 150,
   requireReviewModeration: false

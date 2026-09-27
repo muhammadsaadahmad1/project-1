@@ -10,41 +10,38 @@ import {
   ArrowRight 
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { useStore } from "../context/StoreContext";
 
 export const AdminPasscodeModal = ({ isOpen, onClose, onSuccess }) => {
-  const { loginWithAdminPasscode } = useAuth();
-  const { settings } = useStore();
+  const { loginAdmin } = useAuth();
 
-  const [passcode, setPasscode] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!passcode.trim()) {
-      setErrorMsg("Please enter the Atelier Master Passcode.");
+    if (!email.trim() || !password) {
+      setErrorMsg("Enter your administrator email and password.");
       return;
     }
 
     setIsVerifying(true);
     setErrorMsg("");
 
-    setTimeout(() => {
-      const res = loginWithAdminPasscode(passcode);
-      setIsVerifying(false);
+    const res = await loginAdmin(email.trim(), password);
+    setIsVerifying(false);
 
-      if (res.success) {
-        setPasscode("");
-        onClose();
-        if (onSuccess) onSuccess();
-      } else {
-        setErrorMsg("Incorrect Master Passcode. Access denied.");
-      }
-    }, 200);
+    if (res.success) {
+      setPassword("");
+      onClose();
+      if (onSuccess) onSuccess();
+    } else {
+      setErrorMsg(res.message || "Administrator sign-in failed.");
+    }
   };
 
   return (
@@ -97,7 +94,7 @@ export const AdminPasscodeModal = ({ isOpen, onClose, onSuccess }) => {
         </span>
 
         <h3 style={{ fontSize: "1.6rem", color: "#fff", marginBottom: "0.5rem" }}>
-          Master Passcode Required
+          Administrator Sign-In Required
         </h3>
 
         <p style={{ fontSize: "0.84rem", color: "#a1a1aa", lineHeight: 1.6, marginBottom: "1.5rem" }}>
@@ -126,24 +123,31 @@ export const AdminPasscodeModal = ({ isOpen, onClose, onSuccess }) => {
         <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
           <div className="form-group" style={{ marginBottom: "1.2rem" }}>
             <label className="form-label" style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>Atelier Passcode:</span>
-              <span style={{ color: "#71717a", textTransform: "none", fontSize: "0.72rem" }}>
-                Default: <strong style={{ color: "var(--gold-400)" }}>{settings?.adminPasscode || "aura2026"}</strong>
-              </span>
+              <span>Administrator Email:</span>
             </label>
+
+            <input
+              type="email"
+              className="form-input"
+              autoFocus
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@example.com"
+              style={{ marginBottom: "0.7rem" }}
+            />
 
             <div style={{ position: "relative" }}>
               <input
                 type={showPassword ? "text" : "password"}
                 className="form-input"
-                autoFocus
                 required
-                value={passcode}
+                value={password}
                 onChange={(e) => {
-                  setPasscode(e.target.value);
+                  setPassword(e.target.value);
                   if (errorMsg) setErrorMsg("");
                 }}
-                placeholder="Enter master passcode (e.g. aura2026)"
+                placeholder="Enter administrator password"
                 style={{ paddingRight: "2.8rem", letterSpacing: showPassword ? "normal" : "0.2em", fontSize: "1rem" }}
               />
 
@@ -200,7 +204,7 @@ export const AdminPasscodeModal = ({ isOpen, onClose, onSuccess }) => {
           gap: "0.4rem"
         }}>
           <ShieldCheck size={13} color="#10b981" />
-          <span>Protected by Atelier Cryptographic Passcode Clearance</span>
+          <span>Protected by Supabase Auth and database permissions</span>
         </div>
       </div>
     </div>

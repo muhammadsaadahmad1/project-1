@@ -1,19 +1,29 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { firebaseAuth, isFirebaseActive } from "../config/firebase";
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
-} from "firebase/auth";
-import { useStore } from "./StoreContext";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import {
+  fetchUserProfile,
+  registerUser as registerSupabaseUser,
+  signInAdmin,
+  signInUser,
+  signOutUser,
+  updateUserProfile as updateSupabaseUserProfile
+} from "../services/authApi";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const { settings } = useStore();
-
   const [currentUser, setCurrentUser] = useState(() => {
+    if (isSupabaseConfigured) {
+      localStorage.removeItem("aura_user");
+      return {
+        uid: "usr-guest-01",
+        displayName: "Guest Patron",
+        email: "guest@auraparfums.com",
+        phone: "+14155550198",
+        address: "742 Evergreen Terrace, Beverly Hills, CA 90210",
+        isGuest: true
+      };
+    }
     const saved = localStorage.getItem("aura_user");
     return saved ? JSON.parse(saved) : {
       uid: "usr-guest-01",
@@ -26,7 +36,6 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [isAdmin, setIsAdmin] = useState(() => {
-    // Always require passcode on every page load — wipe any stale admin flag
     localStorage.removeItem("aura_is_admin");
     sessionStorage.removeItem("aura_is_admin");
     return false;
@@ -36,7 +45,9 @@ export const AuthProvider = ({ children }) => {
 
   // Sync to localStorage
   useEffect(() => {
-    localStorage.setItem("aura_user", JSON.stringify(currentUser));
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("aura_user", JSON.stringify(currentUser));
+    }
   }, [currentUser]);
 
   useEffect(() => {
@@ -48,48 +59,50 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isAdmin]);
 
-  // Listen to Firebase Auth if active
+  // Supabase Auth is the source of truth for customer and administrator sessions.
   useEffect(() => {
-    if (!isFirebaseActive || !firebaseAuth) return;
+    if (!isSupabaseConfigured || !supabase) return;
 
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-      if (user) {
-        setCurrentUser({
-          uid: user.uid,
-          displayName: user.displayName || user.email?.split("@")[0] || "Patron",
-          email: user.email,
-          phone: user.phoneNumber || "",
-          isGuest: false
-        });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) {
+        setIsAdmin(false);
+        setCurrentUser({ uid: "usr-guest-01", displayName: "Guest Patron", email: "guest@auraparfums.com", isGuest: true });
+        return;
       }
+      const userId = session.user.id;
+      setTimeout(() => {
+        fetchUserProfile(userId).then(profile => {
+          setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
+          setIsAdmin(Boolean(profile.isAdmin));
+        }).catch(error => console.error("Failed to load Supabase user profile", error));
+      }, 0);
     });
 
-    return unsubscribe;
+    return () => subscription.unsubscribe();
   }, []);
 
-  const loginWithAdminPasscode = (passcode) => {
-    const expected = settings?.adminPasscode || "aura2026";
-    if (passcode.trim() === expected.trim()) {
+  const loginAdmin = async (email, password) => {
+    try {
+      const profile = await signInAdmin(email, password);
+      setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
       setIsAdmin(true);
       return { success: true };
+    } catch (error) {
+      return { success: false, message: error.message || "Administrator sign-in failed." };
     }
-    return { success: false, message: "Invalid Atelier Master Passcode" };
   };
 
   const logoutAdmin = () => {
     setIsAdmin(false);
+    if (isSupabaseConfigured) void logoutUser().catch(error => console.error("Supabase sign-out failed", error));
   };
 
   const loginUser = async (email, password) => {
-    if (isFirebaseActive && firebaseAuth) {
+    if (isSupabaseConfigured) {
       try {
-        const userCred = await signInWithEmailAndPassword(firebaseAuth, email, password);
-        setCurrentUser({
-          uid: userCred.user.uid,
-          displayName: userCred.user.displayName || email.split("@")[0],
-          email: userCred.user.email,
-          isGuest: false
-        });
+        const profile = await signInUser(email, password);
+        setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
+        setIsAdmin(Boolean(profile.isAdmin));
         return { success: true };
       } catch (err) {
         return { success: false, message: err.message };
@@ -109,15 +122,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const registerUser = async (name, email, password) => {
-    if (isFirebaseActive && firebaseAuth) {
+    if (isSupabaseConfigured) {
       try {
-        const userCred = await createUserWithEmailAndPassword(firebaseAuth, email, password);
-        setCurrentUser({
-          uid: userCred.user.uid,
-          displayName: name,
-          email: userCred.user.email,
-          isGuest: false
-        });
+        const profile = await registerSupabaseUser(name, email, password);
+        setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
         return { success: true };
       } catch (err) {
         return { success: false, message: err.message };
@@ -140,12 +148,20 @@ export const AuthProvider = ({ children }) => {
       ...prev,
       ...profileData
     }));
+    if (isSupabaseConfigured && currentUser?.uid && !currentUser.isGuest) {
+      void updateSupabaseUserProfile(currentUser.uid, {
+        displayName: profileData.displayName || currentUser.displayName,
+        phone: profileData.phone ?? currentUser.phone,
+        address: profileData.address ?? currentUser.address
+      }).catch(error => console.error("Failed to save user profile", error));
+    }
   };
 
   const logoutUser = async () => {
-    if (isFirebaseActive && firebaseAuth) {
-      await signOut(firebaseAuth);
+    if (isSupabaseConfigured) {
+      await signOutUser();
     }
+    setIsAdmin(false);
     setCurrentUser({
       uid: "usr-guest-01",
       displayName: "Guest Patron",
@@ -161,7 +177,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin,
         isAuthModalOpen,
         setIsAuthModalOpen,
-        loginWithAdminPasscode,
+        loginAdmin,
         logoutAdmin,
         loginUser,
         registerUser,

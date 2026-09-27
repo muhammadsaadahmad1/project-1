@@ -12,20 +12,18 @@ import {
   Sparkles 
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { useStore } from "../context/StoreContext";
 
 export const AuthModal = ({ isOpen, onClose, onOpenAdmin }) => {
   const { 
     currentUser, 
     isAdmin, 
-    loginWithAdminPasscode, 
+    loginAdmin,
     logoutAdmin, 
     loginUser, 
     registerUser, 
     logoutUser,
     updateUserProfile 
   } = useAuth();
-  const { settings } = useStore();
 
   const [mode, setMode] = useState("profile"); // profile | login | register | admin
   const [email, setEmail] = useState("");
@@ -33,14 +31,13 @@ export const AuthModal = ({ isOpen, onClose, onOpenAdmin }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState(currentUser?.phone || "");
   const [address, setAddress] = useState(currentUser?.address || "");
-  const [adminPasscode, setAdminPasscode] = useState("");
   const [feedback, setFeedback] = useState({ error: "", success: "" });
 
   if (!isOpen) return null;
 
-  const handleAdminAuth = (e) => {
+  const handleAdminAuth = async (e) => {
     e.preventDefault();
-    const res = loginWithAdminPasscode(adminPasscode);
+    const res = await loginAdmin(email, password);
     if (res.success) {
       setFeedback({ error: "", success: "Atelier Master clearance granted!" });
       setTimeout(() => {
@@ -277,7 +274,7 @@ export const AuthModal = ({ isOpen, onClose, onOpenAdmin }) => {
                 Atelier Master Portal
               </h3>
               <p style={{ fontSize: "0.82rem", color: "#a1a1aa" }}>
-                Enter your administrative passcode to manage fragrance products, stock limits, WhatsApp orders, and customer reviews.
+                Sign in with your administrator account to manage products, stock, orders, and reviews.
               </p>
             </div>
 
@@ -317,19 +314,26 @@ export const AuthModal = ({ isOpen, onClose, onOpenAdmin }) => {
             ) : (
               <form onSubmit={handleAdminAuth}>
                 <div className="form-group">
-                  <label className="form-label">Atelier Master Passcode</label>
+                  <label className="form-label">Administrator Email</label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    required
+                    autoFocus
+                    style={{ marginBottom: "0.75rem" }}
+                  />
+                  <label className="form-label">Password</label>
                   <input
                     type="password"
                     className="form-input"
-                    value={adminPasscode}
-                    onChange={(e) => setAdminPasscode(e.target.value)}
-                    placeholder="Enter admin passcode (Default: aura2026)"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter administrator password"
                     required
-                    autoFocus
                   />
-                  <span style={{ fontSize: "0.72rem", color: "#71717a", marginTop: "0.3rem" }}>
-                    Default demo credential: <code style={{ color: "var(--gold-300)" }}>aura2026</code>
-                  </span>
                 </div>
 
                 <button
@@ -338,7 +342,7 @@ export const AuthModal = ({ isOpen, onClose, onOpenAdmin }) => {
                   style={{ width: "100%", padding: "0.8rem", marginTop: "1rem" }}
                 >
                   <ShieldCheck size={16} />
-                  <span>Authenticate Clearance</span>
+                  <span>Sign In as Administrator</span>
                 </button>
               </form>
             )}

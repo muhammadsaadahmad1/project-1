@@ -28,10 +28,10 @@
 | **Build & Dev Tool** | **Vite 5** | Instant HMR (Hot Module Replacement) and optimized production rollup bundling |
 | **Styling** | **Vanilla CSS** (`src/index.css`) | Full control, zero bloat, custom animations (shimmer, pulse, slide drawers), responsive breakpoints |
 | **Iconography** | **Lucide-React** | Consistent, minimalist iconography (flacons, stars, carts, security locks, WhatsApp) |
-| **Database & Backend** | **Firebase (Cloud Firestore)** | Real-time document database for products, multi-size variations, inventory, orders, and reviews |
-| **Authentication** | **Firebase Auth + Passcode Vault** | Patron authentication and Atelier Master cryptographic administrative clearance |
+| **Database & Backend** | **Supabase (Postgres)** | Relational storage, database transactions, row-level security, and real-time updates for products, inventory, orders, and reviews |
+| **Authentication** | **Supabase Auth** | Customer accounts and database-backed administrator roles |
 | **Concierge & Orders** | **WhatsApp Business API & Webhooks** | Pre-formatted order payloads, deep-link dispatch, and mobile admin order progression |
-| **Architecture Mode** | **Dual-Mode Engine** | Runs out of the box with zero-config reactive local persistence; switches seamlessly to live Cloud Firestore when keys are supplied |
+| **Architecture Mode** | **Supabase + Local Demo Mode** | Uses Supabase when Vite environment values are set; otherwise runs with browser-local demo data |
 
 ---
 
@@ -108,7 +108,7 @@
 ```
 1-project/
 ├── index.html                           # Root HTML shell with luxury Google Fonts
-├── package.json                         # Dependencies (React 18, Vite, Firebase, Lucide)
+├── package.json                         # Dependencies (React 18, Vite, Supabase, Lucide)
 ├── vite.config.js                       # Vite build & dev server config
 ├── MY LEARN-1.md                        # This project development & learning journal
 ├── public/
@@ -117,14 +117,18 @@
     ├── main.jsx                         # React 18 DOM mount
     ├── App.jsx                          # Root orchestrator (navbar, hero, grid, modals)
     ├── index.css                        # Obsidian Noir & Imperial Gold design system
-    ├── config/
-    │   └── firebase.js                  # Dual-mode Firebase client & reactive fallback
+    ├── lib/
+    │   └── supabase.ts                 # Supabase browser client
+    ├── types/
+    │   └── models.ts                   # Product, Order, User, and Review models
     ├── context/
-    │   ├── AuthContext.jsx              # Patron auth state & admin passcode clearance
+    │   ├── AuthContext.jsx              # Patron and Supabase administrator auth state
     │   ├── CartContext.jsx              # Bag state, variation tracking, stock limits
-    │   └── StoreContext.jsx             # Real-time sync for products, orders, inventory, reviews
+    │   └── StoreContext.jsx             # Realtime sync for products, orders, inventory, reviews
     ├── services/
-    │   ├── inventoryService.js          # Stock calculations, atomic decrement, alerts
+    │   ├── authApi.ts                   # Supabase Auth and profile API
+    │   ├── storeApi.ts                  # Typed Supabase data and RPC layer
+    │   ├── inventoryService.js          # Stock calculations and alerts
     │   ├── orderService.js              # Order creation, status pipeline
     │   ├── reviewService.js             # Live review metrics & star distribution
     │   └── whatsappService.js           # WhatsApp Business formatters & deep-link URLs
@@ -139,16 +143,18 @@
     │   ├── OrderSuccessModal.jsx        # Receipt modal with instant WhatsApp dispatch
     │   ├── OrderHistoryModal.jsx        # Customer live progression tracker
     │   ├── AuthModal.jsx                # Patron account & profile modal
-    │   ├── AdminPasscodeModal.jsx       # Passcode challenge modal (aura2026)
+    │   ├── AdminPasscodeModal.jsx       # Supabase administrator sign-in modal
     │   └── admin/
     │       ├── AdminLayout.jsx          # Admin layout, KPI summary pills, tab navigation
     │       ├── ProductManager.jsx       # Add/Edit/Delete products & size variations
     │       ├── InventoryManager.jsx     # Real-time stock matrix, threshold alerts, restock
     │       ├── OrderManager.jsx         # Live orders feed, WhatsApp triggers, status updates
     │       ├── ReviewModerator.jsx      # Review moderation queue & auto-approve switch
-    │       └── FirebaseSettingsModal.jsx# Live Firebase credentials input & settings
+    │       └── SupabaseSettingsModal.jsx# Supabase status and boutique settings
     └── data/
         └── initialProducts.js           # Luxury seed catalog with rich notes & variations
+  supabase/
+    └── migrations/                      # Postgres schema, RLS, and stock/order transactions
 ```
 
 ---
@@ -161,7 +167,7 @@
 2. **Direct Admin Dashboard Bypass**:
    - *Challenge*: The Admin dashboard was previously opening directly without prompting for the password because clearance was cached in `localStorage`.
    - *Solution*: 
-     - Created `AdminPasscodeModal.jsx` to intercept any admin open event.
+    - Replaced shared passcode auth with Supabase Auth and database-backed admin roles.
      - Changed authentication storage to `sessionStorage` and cleared stale permanent local storage keys.
      - Added an internal guard in `AdminLayout.jsx` so that even direct render attempts will default to the passcode challenge screen until verified.
 3. **WhatsApp Concierge Number Centralization**:
@@ -169,7 +175,7 @@
    - *Solution*: Centralized the number in `initialProducts.js`, added automatic migration logic in `StoreContext.jsx` to overwrite old cached local storage defaults, and updated all concierge dispatch links and footers.
 4. **Real-time Atomic Stock Updates**:
    - *Challenge*: Needed orders to decrement variation stock immediately without full page reloads.
-   - *Solution*: Built `decrementStockForOrder()` which immutably updates the specific variation inside the product document, synchronizes with both the state layer and Firestore, and immediately recalculates low-stock alert badges.
+  - *Solution*: Added a Postgres transaction that validates current price and stock before updating a variation and creating the order.
 
 ---
 
@@ -181,12 +187,9 @@
    ```
 2. **Open in Browser**:
    Navigate to: **[http://localhost:5173/](http://localhost:5173/)**
-3. **Administrative Access**:
-   - Click the **Admin** button in the top right of the navigation bar.
-   - Enter Master Passcode: **`aura2026`**
-4. **Connect Live Firebase Cloud Firestore**:
-   - Inside the Admin Portal, click **Firebase & System Settings**.
-   - Paste your Firebase project keys (`apiKey`, `projectId`, etc.) and click **Save & Connect Firebase**. The app will reload and connect live to Cloud Firestore!
+3. **Connect Supabase**:
+  - Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+  - Follow `supabase/README.md` to link the project, apply migrations, create an administrator account, and optionally seed demo products.
 
 ---
 
@@ -198,8 +201,9 @@
   - Real-time inventory tracking with atomic order decrements and low-stock alerts.
   - WhatsApp Business API integration (direct message dispatch & customer alerts) routed to `+92 315-9146234`.
   - Real-time customer reviews and star rating breakdown with admin moderation.
-  - Admin passcode security gate (`AdminPasscodeModal`) with passcode `aura2026`.
-  - Dual-mode Firebase integration (local reactive + live Firestore ready).
+  - Supabase Auth and database-backed administrator roles.
+  - Supabase Postgres migration with row-level security and transactional inventory operations.
+  - Local demo mode remains available until Supabase environment values are configured.
   - Git repository initialized on `main`, staged, committed, and linked to GitHub remote (`https://github.com/muhammadsaadahmad1/project-1.git`).
 - **v1.1 (Upcoming Milestones)**:
-  - To be updated based on user direction (e.g. backend Firebase rules deployment, custom branding tweaks, removing or customizing hero trust cards).
+  - Link the Supabase project and validate policies against real accounts; complete Stripe Checkout and webhook integration.

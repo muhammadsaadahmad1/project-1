@@ -18,12 +18,12 @@ import { ProductManager } from "./ProductManager";
 import { InventoryManager } from "./InventoryManager";
 import { OrderManager } from "./OrderManager";
 import { ReviewModerator } from "./ReviewModerator";
-import { FirebaseSettingsModal } from "./FirebaseSettingsModal";
+import { SupabaseSettingsModal } from "./SupabaseSettingsModal";
 
 import { AdminPasscodeModal } from "../AdminPasscodeModal";
 
 export const AdminLayout = ({ isOpen, onClose }) => {
-  const { products, orders, reviews, lowStockAlerts, isFirebaseActive } = useStore();
+  const { products, orders, reviews, lowStockAlerts, isSupabaseActive } = useStore();
   const { isAdmin, logoutAdmin } = useAuth();
 
   const [activeTab, setActiveTab] = useState("orders"); // orders | inventory | products | reviews | settings
@@ -81,7 +81,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
               AURA PARFUMS Command Portal
             </h2>
             <span style={{ fontSize: "0.72rem", color: "#71717a" }}>
-              Backend: {isFirebaseActive ? <strong style={{ color: "#34d399" }}>⚡ Cloud Firestore Live</strong> : <span style={{ color: "var(--gold-300)" }}>Local Reactive Engine</span>}
+              Backend: {isSupabaseActive ? <strong style={{ color: "#34d399" }}>Supabase Configured</strong> : <span style={{ color: "var(--gold-300)" }}>Local Demo Mode</span>}
             </span>
           </div>
         </div>
@@ -184,7 +184,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
           { id: "inventory", label: "Inventory & Stock Matrix", icon: Layers, count: lowStockCount, isAlert: lowStockCount > 0 },
           { id: "products", label: "Product Management", icon: Package, count: products.length },
           { id: "reviews", label: "Reviews & Ratings", icon: Star, count: pendingReviewsCount },
-          { id: "settings", label: "Firebase & System Settings", icon: Settings }
+          { id: "settings", label: "Supabase & System Settings", icon: Settings }
         ].map(tab => {
           const isSelected = activeTab === tab.id;
           const Icon = tab.icon;
@@ -235,7 +235,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
           {activeTab === "inventory" && <InventoryManager onGoToProducts={() => setActiveTab("products")} />}
           {activeTab === "products" && <ProductManager />}
           {activeTab === "reviews" && <ReviewModerator />}
-          {activeTab === "settings" && <FirebaseSettingsModal />}
+          {activeTab === "settings" && <SupabaseSettingsModal />}
         </div>
       </main>
     </div>

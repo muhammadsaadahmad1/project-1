@@ -3,11 +3,15 @@ node_modules/
 
 # Production build
 dist/
+.next/
+supabase/.temp/
+supabase/.branches/
 
 # Environment and secrets
 .env
 .env.local
 .env.*.local
+.env.production
 
 # OS files
 .DS_Store

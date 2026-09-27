@@ -2,43 +2,57 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { INITIAL_PRODUCTS, INITIAL_REVIEWS, INITIAL_ORDERS, APP_SETTINGS } from "../data/initialProducts";
 import { decrementStockForOrder, getLowStockAlerts } from "../services/inventoryService";
 import { calculateProductRatingMetrics } from "../services/reviewService";
-import { 
-  firestoreDb, 
-  isFirebaseActive 
-} from "../config/firebase";
-import { 
-  collection, 
-  doc, 
-  onSnapshot, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc 
-} from "firebase/firestore";
+import {
+  addProduct as addSupabaseProduct,
+  addReview as addSupabaseReview,
+  deleteProduct as deleteSupabaseProduct,
+  deleteReview as deleteSupabaseReview,
+  fetchOrders,
+  fetchProducts,
+  fetchReviews,
+  fetchStoreSettings,
+  isSupabaseConfigured,
+  placeOrder as placeSupabaseOrder,
+  saveStoreSettings,
+  subscribeStoreChanges,
+  updateOrderStatus as updateSupabaseOrderStatus,
+  updateProduct as updateSupabaseProduct,
+  updateReviewStatus as updateSupabaseReviewStatus,
+  updateStock as updateSupabaseStock
+} from "../services/storeApi";
 
 const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
   // 1. Initial State from localStorage or Seeds
   const [products, setProducts] = useState(() => {
+    if (isSupabaseConfigured) return [];
     const saved = localStorage.getItem("aura_products");
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
 
   const [reviews, setReviews] = useState(() => {
+    if (isSupabaseConfigured) return [];
     const saved = localStorage.getItem("aura_reviews");
     return saved ? JSON.parse(saved) : INITIAL_REVIEWS;
   });
 
   const [orders, setOrders] = useState(() => {
+    if (isSupabaseConfigured) return [];
     const saved = localStorage.getItem("aura_orders");
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
 
   const [settings, setSettings] = useState(() => {
+    if (isSupabaseConfigured) {
+      localStorage.removeItem("aura_settings");
+      return APP_SETTINGS;
+    }
     const saved = localStorage.getItem("aura_settings");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        delete parsed.adminPasscode;
         if (parsed.adminWhatsappNumber === "+14155552671" || !parsed.adminWhatsappNumber) {
           parsed.adminWhatsappNumber = "+923159146234";
         }
@@ -50,63 +64,75 @@ export const StoreProvider = ({ children }) => {
 
   // Sync to local storage on local mode
   useEffect(() => {
-    if (!isFirebaseActive) {
+    if (!isSupabaseConfigured) {
       localStorage.setItem("aura_products", JSON.stringify(products));
     }
   }, [products]);
 
   useEffect(() => {
-    if (!isFirebaseActive) {
+    if (!isSupabaseConfigured) {
       localStorage.setItem("aura_reviews", JSON.stringify(reviews));
     }
   }, [reviews]);
 
   useEffect(() => {
-    if (!isFirebaseActive) {
+    if (!isSupabaseConfigured) {
       localStorage.setItem("aura_orders", JSON.stringify(orders));
     }
   }, [orders]);
 
   useEffect(() => {
-    localStorage.setItem("aura_settings", JSON.stringify(settings));
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("aura_settings", JSON.stringify(settings));
+    }
   }, [settings]);
 
-  // 2. Real-time Firestore Listeners (if Firebase is configured)
+  const [settingsHydrated, setSettingsHydrated] = useState(!isSupabaseConfigured);
+
   useEffect(() => {
-    if (!isFirebaseActive || !firestoreDb) return;
+    if (!isSupabaseConfigured) return;
 
-    console.log("⚡ [AURA] Attaching real-time Firestore listeners...");
-    
-    // Products Listener
-    const unsubProducts = onSnapshot(collection(firestoreDb, "products"), (snapshot) => {
-      if (!snapshot.empty) {
-        const cloudProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setProducts(cloudProducts);
+    let active = true;
+    const refresh = async (table) => {
+      try {
+        if (table === "products") setProducts(await fetchProducts());
+        if (table === "reviews") setReviews(await fetchReviews());
+        if (table === "orders") setOrders(await fetchOrders());
+      } catch (error) {
+        console.warn(`Supabase ${table} load failed:`, error.message);
       }
-    }, (error) => console.warn("Firestore products listener notice:", error));
+    };
 
-    // Reviews Listener
-    const unsubReviews = onSnapshot(collection(firestoreDb, "reviews"), (snapshot) => {
-      if (!snapshot.empty) {
-        const cloudReviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setReviews(cloudReviews);
-      }
-    }, (error) => console.warn("Firestore reviews listener notice:", error));
+    Promise.all([fetchProducts(), fetchReviews(), fetchOrders(), fetchStoreSettings()])
+      .then(([remoteProducts, remoteReviews, remoteOrders, remoteSettings]) => {
+        if (!active) return;
+        if (remoteProducts.length) setProducts(remoteProducts);
+        if (remoteReviews.length) setReviews(remoteReviews);
+        if (remoteOrders.length) setOrders(remoteOrders);
+        if (remoteSettings) {
+          delete remoteSettings.adminPasscode;
+          setSettings(prev => ({ ...prev, ...remoteSettings }));
+        }
+        setSettingsHydrated(true);
+      })
+      .catch(error => {
+        console.warn("Supabase initial data load failed:", error.message);
+        if (active) setSettingsHydrated(true);
+      });
 
-    // Orders Listener
-    const unsubOrders = onSnapshot(collection(firestoreDb, "orders"), (snapshot) => {
-      if (!snapshot.empty) {
-        const cloudOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setOrders(cloudOrders);
-      }
-    }, (error) => console.warn("Firestore orders listener notice:", error));
-
+    const unsubscribe = subscribeStoreChanges(table => { void refresh(table); });
     return () => {
-      unsubProducts();
-      unsubReviews();
-      unsubOrders();
+      active = false;
+      unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !settingsHydrated) return;
+    void saveStoreSettings(settings).catch(error => console.warn("Supabase settings save failed:", error.message));
+  }, [settings, settingsHydrated]);
+
+  // Supabase Realtime keeps separate browser sessions in sync.
 
   // 3. Product Management Operations
   const addProduct = async (newProduct) => {
@@ -117,8 +143,9 @@ export const StoreProvider = ({ children }) => {
       rating: { average: 5.0, count: 1 }
     };
 
-    if (isFirebaseActive && firestoreDb) {
-      await setDoc(doc(firestoreDb, "products", product.id), product);
+    if (isSupabaseConfigured) {
+      await addSupabaseProduct(product);
+      setProducts(prev => [product, ...prev.filter(existing => existing.id !== product.id)]);
     } else {
       setProducts(prev => [product, ...prev]);
     }
@@ -126,16 +153,18 @@ export const StoreProvider = ({ children }) => {
   };
 
   const updateProduct = async (productId, updatedFields) => {
-    if (isFirebaseActive && firestoreDb) {
-      await updateDoc(doc(firestoreDb, "products", productId), updatedFields);
+    if (isSupabaseConfigured) {
+      await updateSupabaseProduct(productId, updatedFields);
+      setProducts(prev => prev.map(p => p.id === productId ? { ...p, ...updatedFields } : p));
     } else {
       setProducts(prev => prev.map(p => p.id === productId ? { ...p, ...updatedFields } : p));
     }
   };
 
   const deleteProduct = async (productId) => {
-    if (isFirebaseActive && firestoreDb) {
-      await deleteDoc(doc(firestoreDb, "products", productId));
+    if (isSupabaseConfigured) {
+      await deleteSupabaseProduct(productId);
+      setProducts(prev => prev.filter(p => p.id !== productId));
     } else {
       setProducts(prev => prev.filter(p => p.id !== productId));
     }
@@ -147,6 +176,15 @@ export const StoreProvider = ({ children }) => {
     const targetProduct = products.find(p => p.id === productId);
     if (!targetProduct) return;
 
+    if (isSupabaseConfigured) {
+      await updateSupabaseStock(productId, variationId, numStock);
+      setProducts(prev => prev.map(product => product.id !== productId ? product : {
+        ...product,
+        variations: product.variations.map(variation => variation.id === variationId ? { ...variation, stock: numStock } : variation)
+      }));
+      return;
+    }
+
     const updatedVariations = targetProduct.variations.map(v => 
       v.id === variationId ? { ...v, stock: numStock } : v
     );
@@ -156,6 +194,13 @@ export const StoreProvider = ({ children }) => {
 
   // 5. Order Placement & Automated Stock Decrement
   const placeOrder = async (orderData) => {
+    if (isSupabaseConfigured) {
+      const savedOrder = await placeSupabaseOrder(orderData);
+      setOrders(prev => [savedOrder, ...prev.filter(order => order.id !== savedOrder.id)]);
+      setProducts(await fetchProducts());
+      return savedOrder;
+    }
+
     const newOrderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
     const newOrder = {
       ...orderData,
@@ -168,30 +213,16 @@ export const StoreProvider = ({ children }) => {
     // Decrement stock in real-time
     const updatedCatalog = decrementStockForOrder(products, orderData.items);
     
-    if (isFirebaseActive && firestoreDb) {
-      // Write order to Firestore
-      await setDoc(doc(firestoreDb, "orders", newOrder.id), newOrder);
-      // Update each affected product
-      for (const item of orderData.items) {
-        const prod = updatedCatalog.find(p => p.id === item.productId);
-        if (prod) {
-          await updateDoc(doc(firestoreDb, "products", prod.id), { variations: prod.variations });
-        }
-      }
-    } else {
-      setOrders(prev => [newOrder, ...prev]);
-      setProducts(updatedCatalog);
-    }
+    setOrders(prev => [newOrder, ...prev]);
+    setProducts(updatedCatalog);
 
     return newOrder;
   };
 
   const updateOrderStatus = async (orderId, newStatus) => {
-    if (isFirebaseActive && firestoreDb) {
-      await updateDoc(doc(firestoreDb, "orders", orderId), { 
-        status: newStatus,
-        updatedAt: new Date().toISOString()
-      });
+    if (isSupabaseConfigured) {
+      await updateSupabaseOrderStatus(orderId, newStatus);
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus, updatedAt: new Date().toISOString() } : o));
     } else {
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus, updatedAt: new Date().toISOString() } : o));
     }
@@ -208,13 +239,16 @@ export const StoreProvider = ({ children }) => {
 
     const newReviewsList = [newReview, ...reviews];
 
-    if (isFirebaseActive && firestoreDb) {
-      await setDoc(doc(firestoreDb, "reviews", newReview.id), newReview);
-      // Recalculate metrics if auto-approved
-      if (newReview.status === "approved") {
-        const metrics = calculateProductRatingMetrics(newReviewsList, newReview.productId);
-        await updateDoc(doc(firestoreDb, "products", newReview.productId), { rating: metrics });
+    if (isSupabaseConfigured) {
+      const savedReview = await addSupabaseReview(newReview);
+      setReviews(prev => [savedReview, ...prev]);
+      if (savedReview.status === "approved") {
+        const updatedReviews = [savedReview, ...reviews];
+        const metrics = calculateProductRatingMetrics(updatedReviews, savedReview.productId);
+        await updateSupabaseProduct(savedReview.productId, { rating: metrics });
+        setProducts(prev => prev.map(product => product.id === savedReview.productId ? { ...product, rating: metrics } : product));
       }
+      return savedReview;
     } else {
       setReviews(newReviewsList);
       if (newReview.status === "approved") {
@@ -232,10 +266,12 @@ export const StoreProvider = ({ children }) => {
 
     const updatedReviews = reviews.map(r => r.id === reviewId ? { ...r, status: newStatus } : r);
 
-    if (isFirebaseActive && firestoreDb) {
-      await updateDoc(doc(firestoreDb, "reviews", reviewId), { status: newStatus });
+    if (isSupabaseConfigured) {
+      await updateSupabaseReviewStatus(reviewId, newStatus);
+      setReviews(updatedReviews);
       const metrics = calculateProductRatingMetrics(updatedReviews, targetRev.productId);
-      await updateDoc(doc(firestoreDb, "products", targetRev.productId), { rating: metrics });
+      await updateSupabaseProduct(targetRev.productId, { rating: metrics });
+      setProducts(prev => prev.map(p => p.id === targetRev.productId ? { ...p, rating: metrics } : p));
     } else {
       setReviews(updatedReviews);
       const metrics = calculateProductRatingMetrics(updatedReviews, targetRev.productId);
@@ -247,11 +283,13 @@ export const StoreProvider = ({ children }) => {
     const targetRev = reviews.find(r => r.id === reviewId);
     const updatedReviews = reviews.filter(r => r.id !== reviewId);
 
-    if (isFirebaseActive && firestoreDb) {
-      await deleteDoc(doc(firestoreDb, "reviews", reviewId));
+    if (isSupabaseConfigured) {
+      await deleteSupabaseReview(reviewId);
+      setReviews(updatedReviews);
       if (targetRev) {
         const metrics = calculateProductRatingMetrics(updatedReviews, targetRev.productId);
-        await updateDoc(doc(firestoreDb, "products", targetRev.productId), { rating: metrics });
+        await updateSupabaseProduct(targetRev.productId, { rating: metrics });
+        setProducts(prev => prev.map(p => p.id === targetRev.productId ? { ...p, rating: metrics } : p));
       }
     } else {
       setReviews(updatedReviews);
@@ -283,7 +321,7 @@ export const StoreProvider = ({ children }) => {
         addReview,
         updateReviewStatus,
         deleteReview,
-        isFirebaseActive
+        isSupabaseActive: isSupabaseConfigured
       }}
     >
       {children}
