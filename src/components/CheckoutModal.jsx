@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   X, 
   CreditCard, 
@@ -16,14 +17,15 @@ import { useStore } from "../context/StoreContext";
 import { useAuth } from "../context/AuthContext";
 
 export const CheckoutModal = ({ onOrderPlaced }) => {
-  const { items, subtotal, shipping, total, clearCart, isCheckoutOpen, setIsCheckoutOpen } = useCart();
+  const { items, subtotal, shipping, total, clearCart, isCheckoutOpen, setIsCheckoutOpen, setIsCartOpen } = useCart();
   const { placeOrder, settings } = useStore();
   const { currentUser, updateUserProfile } = useAuth();
+  const navigate = useNavigate();
 
-  const [name, setName] = useState(currentUser.displayName || "");
-  const [email, setEmail] = useState(currentUser.email || "");
-  const [phone, setPhone] = useState(currentUser.phone || "+14155550198");
-  const [address, setAddress] = useState(currentUser.address || "");
+  const [name, setName] = useState(currentUser?.displayName || "");
+  const [email, setEmail] = useState(currentUser?.email || "");
+  const [phone, setPhone] = useState(currentUser?.phone || "+14155550198");
+  const [address, setAddress] = useState(currentUser?.address || "");
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Credit Card (Secure Stripe)");
   const [cardNumber, setCardNumber] = useState("4242 •••• •••• 4242");
@@ -33,6 +35,24 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
   const [errorMsg, setErrorMsg] = useState("");
 
   if (!isCheckoutOpen) return null;
+
+  if (!currentUser) {
+    const signInState = { from: { pathname: "/" } };
+    return (
+      <div className="modal-backdrop" onClick={() => setIsCheckoutOpen(false)}>
+        <div className="modal-content" onClick={event => event.stopPropagation()} style={{ width: "100%", maxWidth: "440px", padding: "2rem", textAlign: "center" }}>
+          <div style={{ width: "52px", height: "52px", display: "grid", placeItems: "center", margin: "0 auto 1rem", borderRadius: "50%", color: "var(--gold-400)", border: "1px solid var(--border-gold)" }}>
+            <Lock size={22} />
+          </div>
+          <h2 style={{ color: "#fff", fontSize: "1.6rem", marginBottom: "0.5rem" }}>Sign in to complete your order</h2>
+          <p style={{ color: "#a1a1aa", fontSize: "0.88rem", marginBottom: "1.4rem" }}>Your bag will be here when you return.</p>
+          <button className="btn-gold" onClick={() => navigate("/signin", { state: signInState })} style={{ width: "100%" }}>Sign In</button>
+          <button className="btn-outline" onClick={() => navigate("/register", { state: signInState })} style={{ width: "100%", marginTop: "0.65rem" }}>Create an Account</button>
+          <button className="btn-outline" onClick={() => { setIsCheckoutOpen(false); setIsCartOpen(true); }} style={{ width: "100%", marginTop: "0.65rem" }}>Back to Bag</button>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
@@ -46,7 +66,7 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
 
     try {
       // Save customer profile updates
-      updateUserProfile({ displayName: name, email, phone, address });
+      void updateUserProfile({ displayName: name, address }).catch(error => console.error("Profile update failed", error));
 
       const orderPayload = {
         customer: {

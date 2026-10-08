@@ -41,7 +41,7 @@ export const OrderHistoryModal = ({ isOpen, onClose }) => {
 
   const steps = [
     { label: "Placed", desc: "Awaiting review" },
-    { label: "Confirmed", desc: "Approved by Atelier" },
+    { label: "Confirmed", desc: "Confirmed by our team" },
     { label: "Preparing", desc: "Bottling & Packaging" },
     { label: "Dispatched", desc: "Courier En Route" }
   ];
@@ -74,10 +74,10 @@ export const OrderHistoryModal = ({ isOpen, onClose }) => {
             </span>
           </div>
           <h2 style={{ fontSize: "2rem", color: "#fff" }}>
-            Your Boutique Order Dossier
+            Your Orders
           </h2>
           <p style={{ fontSize: "0.85rem", color: "#a1a1aa" }}>
-            Tracking status for patron: <strong style={{ color: "#fff" }}>{currentUser?.displayName || "Patron"}</strong>. Real-time updates reflect live changes from the atelier.
+            Order status for <strong style={{ color: "#fff" }}>{currentUser?.displayName || "you"}</strong>. Our team will update your order as it progresses.
           </p>
         </div>
 
@@ -219,7 +219,7 @@ export const OrderHistoryModal = ({ isOpen, onClose }) => {
                       fontSize: "0.85rem"
                     }}>
                       <AlertCircle size={16} />
-                      <span>This order could not be fulfilled by the atelier. You have not been charged.</span>
+                      <span>Our team could not fulfill this order. You have not been charged.</span>
                     </div>
                   )}
 

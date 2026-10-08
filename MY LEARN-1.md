@@ -38,7 +38,7 @@
 ## 3. Work Completed So Far
 
 ### Feature 1: Product Management
-- **Atelier Admin Command Center**: Accessed via the **Admin** button in the header (secured by Master Passcode).
+- **Admin Command Center**: Available at `/admin` after Supabase role verification.
 - **Creation & Editing Suite**:
   - Fragrance Title, Maison/Brand, Concentration Subtitle (*Extrait de Parfum*, *Eau de Parfum*, etc.).
   - Olfactory Family classification (*Woody Oriental*, *Floral*, *Woody*, *Citrus Fresh*, *Oriental*, *Gourmand*).
@@ -95,11 +95,12 @@
 - **Concierge Checkout Modal**: Patron information form, card/COD/digital wallet payment selection, and instant stock allocation commit.
 - **Customer Order Dossier & Tracking**: View order timeline and receipt anytime.
 
-### Feature 6: Admin Security & Passcode Clearance
-- **Master Passcode Challenge**: Clicking the **Admin** button now opens the **Admin Passcode Modal** (`AdminPasscodeModal.jsx`), preventing unauthorized access.
-- **Default Master Passcode**: `aura2026` (configurable inside Admin Settings).
-- **Session-Scoped Clearance**: Clearance is bound to the active session (`sessionStorage`), meaning newly opened sessions require authentication.
-- **One-Click Lock**: Admin header includes a "Lock" button to revoke clearance immediately.
+### Feature 6: Account Security & Admin Access
+- **Public Storefront**: Visitors can browse fragrances and use the cart without signing in; checkout requires a Supabase session.
+- **Protected Routes**: Profile and admin dashboard routes require a Supabase session.
+- **Email Verification**: New customers verify their email with a six-digit Supabase OTP.
+- **Role-Based Admin Access**: Supabase operators assign the `admin` role; the admin sign-in route and dashboard verify it with RPCs and database policies.
+- **One-Click Lock**: Admin header includes a "Lock" button to sign out.
 
 ---
 
@@ -115,25 +116,26 @@
 │   └── favicon.svg                      # Custom SVG gold flacon favicon
 └── src/
     ├── main.jsx                         # React 18 DOM mount
-    ├── App.jsx                          # Root orchestrator (navbar, hero, grid, modals)
+    ├── App.jsx                          # Root routes, route guards, storefront
     ├── index.css                        # Obsidian Noir & Imperial Gold design system
     ├── lib/
     │   └── supabase.ts                 # Supabase browser client
     ├── types/
     │   └── models.ts                   # Product, Order, User, and Review models
     ├── context/
-    │   ├── AuthContext.jsx              # Patron and Supabase administrator auth state
+    │   ├── AuthContext.jsx              # Supabase session, OTP and role state
     │   ├── CartContext.jsx              # Bag state, variation tracking, stock limits
     │   └── StoreContext.jsx             # Realtime sync for products, orders, inventory, reviews
     ├── services/
-    │   ├── authApi.ts                   # Supabase Auth and profile API
+    │   ├── authApi.ts                   # Supabase Auth, OTP and profile API
+    │   ├── adminRequestsApi.ts          # Admin-only request and review RPC calls
     │   ├── storeApi.ts                  # Typed Supabase data and RPC layer
     │   ├── inventoryService.js          # Stock calculations and alerts
     │   ├── orderService.js              # Order creation, status pipeline
     │   ├── reviewService.js             # Live review metrics & star distribution
     │   └── whatsappService.js           # WhatsApp Business formatters & deep-link URLs
     ├── components/
-    │   ├── Navbar.jsx                   # Brand logo, search, bag badge, admin toggle
+    │   ├── Navbar.jsx                   # Brand logo, search, bag badge, account link
     │   ├── HeroBanner.jsx               # Visual hero showcase & WhatsApp concierge
     │   ├── ProductCard.jsx              # Product card with variation chips & stock pill
     │   ├── ProductDetailModal.jsx       # Olfactory Pyramid & embedded live reviews
@@ -142,10 +144,10 @@
     │   ├── CheckoutModal.jsx            # Shipping form, payment simulation, stock commit
     │   ├── OrderSuccessModal.jsx        # Receipt modal with instant WhatsApp dispatch
     │   ├── OrderHistoryModal.jsx        # Customer live progression tracker
-    │   ├── AuthModal.jsx                # Patron account & profile modal
-    │   ├── AdminPasscodeModal.jsx       # Supabase administrator sign-in modal
+    │   ├── auth/AuthPages.jsx           # Sign in, registration, OTP and profile pages
     │   └── admin/
-    │       ├── AdminLayout.jsx          # Admin layout, KPI summary pills, tab navigation
+    │       ├── AdminLayout.jsx          # Admin route, KPI summary and tab navigation
+    │       ├── AdminRequests.jsx        # Admin-only request review queue
     │       ├── ProductManager.jsx       # Add/Edit/Delete products & size variations
     │       ├── InventoryManager.jsx     # Real-time stock matrix, threshold alerts, restock
     │       ├── OrderManager.jsx         # Live orders feed, WhatsApp triggers, status updates
@@ -164,12 +166,9 @@
 1. **Workspace Directory Trailing Space**:
    - *Challenge*: The user's workspace path on macOS was `/Users/saad/Desktop/1-project ` (with a trailing space), causing initial commands targeting `1-project` to fail.
    - *Solution*: Created a symlink linking `/Users/saad/Desktop/1-project` to `/Users/saad/Desktop/1-project ` and ensured all file operations specifically handle the quoted directory path.
-2. **Direct Admin Dashboard Bypass**:
-   - *Challenge*: The Admin dashboard was previously opening directly without prompting for the password because clearance was cached in `localStorage`.
-   - *Solution*: 
-    - Replaced shared passcode auth with Supabase Auth and database-backed admin roles.
-     - Changed authentication storage to `sessionStorage` and cleared stale permanent local storage keys.
-     - Added an internal guard in `AdminLayout.jsx` so that even direct render attempts will default to the passcode challenge screen until verified.
+2. **Direct Admin Dashboard Access**:
+  - *Challenge*: Admin routes must stay inaccessible to ordinary accounts.
+  - *Solution*: Admin login and each `/admin` route load are checked by Supabase RPCs; the database applies row-level security to protected data and review actions.
 3. **WhatsApp Concierge Number Centralization**:
    - *Challenge*: The default concierge number needed to route directly to user's WhatsApp: `+92 315-9146234`.
    - *Solution*: Centralized the number in `initialProducts.js`, added automatic migration logic in `StoreContext.jsx` to overwrite old cached local storage defaults, and updated all concierge dispatch links and footers.

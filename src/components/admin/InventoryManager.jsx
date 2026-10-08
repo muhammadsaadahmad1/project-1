@@ -108,7 +108,7 @@ export const InventoryManager = ({ onGoToProducts }) => {
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.75rem" }}>
             <AlertTriangle size={20} color="#fbbf24" />
             <h4 style={{ fontSize: "1.05rem", color: "#fbbf24", margin: 0 }}>
-              Atelier Replenishment Required ({lowStockAlerts.length} Critical Items)
+              Restock Needed ({lowStockAlerts.length} Critical Items)
             </h4>
           </div>
 

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   X, 
   Package, 
   Layers, 
   ShoppingBag, 
   Star, 
+  ShieldCheck,
   Settings, 
   AlertTriangle, 
   Sparkles, 
@@ -14,26 +16,19 @@ import {
 } from "lucide-react";
 import { useStore } from "../../context/StoreContext";
 import { useAuth } from "../../context/AuthContext";
+import { AdminRequests } from "./AdminRequests";
 import { ProductManager } from "./ProductManager";
 import { InventoryManager } from "./InventoryManager";
 import { OrderManager } from "./OrderManager";
 import { ReviewModerator } from "./ReviewModerator";
 import { SupabaseSettingsModal } from "./SupabaseSettingsModal";
 
-import { AdminPasscodeModal } from "../AdminPasscodeModal";
-
-export const AdminLayout = ({ isOpen, onClose }) => {
+export const AdminLayout = () => {
   const { products, orders, reviews, lowStockAlerts, isSupabaseActive } = useStore();
-  const { isAdmin, logoutAdmin } = useAuth();
+  const { logoutUser } = useAuth();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("orders"); // orders | inventory | products | reviews | settings
-
-  if (!isOpen) return null;
-
-  // Enforce passcode protection
-  if (!isAdmin) {
-    return <AdminPasscodeModal isOpen={true} onClose={onClose} onSuccess={() => {}} />;
-  }
 
   // Key KPI metrics
   const totalRevenue = orders.reduce((sum, o) => sum + (o.status !== "rejected" ? o.total : 0), 0);
@@ -73,7 +68,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
             fontSize: "0.75rem",
             letterSpacing: "0.1em"
           }}>
-            ATELIER ADMIN
+            ADMIN
           </div>
 
           <div>
@@ -141,7 +136,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
         {/* Right Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <button 
-            onClick={() => { logoutAdmin(); onClose(); }}
+            onClick={() => { void logoutUser().then(() => navigate("/signin", { replace: true })); }}
             style={{
               background: "none",
               border: "1px solid rgba(255, 255, 255, 0.12)",
@@ -161,7 +156,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
 
           <button 
             className="btn-icon"
-            onClick={onClose}
+            onClick={() => navigate("/")}
             title="Return to Boutique"
             style={{ width: "36px", height: "36px" }}
           >
@@ -184,6 +179,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
           { id: "inventory", label: "Inventory & Stock Matrix", icon: Layers, count: lowStockCount, isAlert: lowStockCount > 0 },
           { id: "products", label: "Product Management", icon: Package, count: products.length },
           { id: "reviews", label: "Reviews & Ratings", icon: Star, count: pendingReviewsCount },
+          { id: "access", label: "Admin Requests", icon: ShieldCheck },
           { id: "settings", label: "Supabase & System Settings", icon: Settings }
         ].map(tab => {
           const isSelected = activeTab === tab.id;
@@ -235,6 +231,7 @@ export const AdminLayout = ({ isOpen, onClose }) => {
           {activeTab === "inventory" && <InventoryManager onGoToProducts={() => setActiveTab("products")} />}
           {activeTab === "products" && <ProductManager />}
           {activeTab === "reviews" && <ReviewModerator />}
+          {activeTab === "access" && <AdminRequests />}
           {activeTab === "settings" && <SupabaseSettingsModal />}
         </div>
       </main>

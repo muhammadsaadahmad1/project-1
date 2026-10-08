@@ -160,7 +160,7 @@ export const ProductDetailModal = ({ product, onClose }) => {
                   Flacon Volume & Decanter Size:
                 </label>
                 <span style={{ fontSize: "0.78rem", color: currentVar.stock <= 5 && currentVar.stock > 0 ? "var(--gold-400)" : "#9ca3af" }}>
-                  {currentVar.stock > 0 ? `Available Inventory: ${currentVar.stock} units` : "Depleted in Atelier"}
+                  {currentVar.stock > 0 ? `Available: ${currentVar.stock} units` : "Out of stock"}
                 </span>
               </div>
 

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   ShoppingBag, 
   Search, 
   User, 
-  ShieldCheck, 
   Clock, 
   Sparkles, 
   X,
@@ -17,12 +17,11 @@ export const Navbar = ({
   setSearchTerm, 
   selectedFamily, 
   setSelectedFamily, 
-  onOpenAdmin,
   onOpenOrderHistory,
-  onOpenAuth
 }) => {
   const { totalItemsCount, setIsCartOpen, subtotal } = useCart();
-  const { currentUser, isAdmin } = useAuth();
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const fragranceFamilies = [
@@ -172,35 +171,13 @@ export const Navbar = ({
 
           {/* Patron Account / Auth */}
           <button 
-            className="btn-icon"
-            onClick={onOpenAuth}
-            title={currentUser?.displayName || "Sign In"}
+            className="btn-outline"
+            onClick={() => navigate(currentUser ? "/profile" : "/signin")}
+            title={currentUser?.displayName || "Sign In / Register"}
+            style={{ padding: "0.5rem 0.85rem", whiteSpace: "nowrap" }}
           >
             <User size={18} />
-          </button>
-
-          {/* Admin Atelier Portal */}
-          <button 
-            onClick={onOpenAdmin}
-            style={{
-              background: isAdmin ? "rgba(212, 175, 55, 0.2)" : "rgba(255, 255, 255, 0.04)",
-              border: `1px solid ${isAdmin ? "var(--gold-500)" : "rgba(255, 255, 255, 0.12)"}`,
-              color: isAdmin ? "var(--gold-400)" : "#d4d4d8",
-              padding: "0.5rem 0.85rem",
-              borderRadius: "6px",
-              fontSize: "0.78rem",
-              fontWeight: 500,
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              cursor: "pointer",
-              transition: "0.2s"
-            }}
-          >
-            <ShieldCheck size={14} color={isAdmin ? "#d4af37" : "#a1a1aa"} />
-            <span style={{ textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              {isAdmin ? "Admin Portal" : "Admin"}
-            </span>
+            <span>{currentUser ? "My Profile" : "Sign In / Register"}</span>
           </button>
 
           {/* Shopping Bag Button */}

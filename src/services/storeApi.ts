@@ -39,13 +39,15 @@ export async function fetchOrders(): Promise<Order[]> {
   return (data || []).map(mapRecord<Order>);
 }
 
-export function subscribeStoreChanges(onChange: (table: string) => void): () => void {
+export function subscribeStoreChanges(onChange: (table: string) => void, includeOrders = true): () => void {
   const client = requireSupabase();
   const channel = client.channel("store-data-changes")
     .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => onChange("products"))
-    .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, () => onChange("reviews"))
-    .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => onChange("orders"))
-    .subscribe();
+    .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, () => onChange("reviews"));
+  if (includeOrders) {
+    channel.on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => onChange("orders"));
+  }
+  channel.subscribe();
   return () => { void client.removeChannel(channel); };
 }
 

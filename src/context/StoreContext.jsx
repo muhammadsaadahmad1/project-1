@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
 import { INITIAL_PRODUCTS, INITIAL_REVIEWS, INITIAL_ORDERS, APP_SETTINGS } from "../data/initialProducts";
 import { decrementStockForOrder, getLowStockAlerts } from "../services/inventoryService";
 import { calculateProductRatingMetrics } from "../services/reviewService";
@@ -24,9 +25,12 @@ import {
 const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
+  const { currentUser } = useAuth();
+  const userId = currentUser?.id;
+  const isAdmin = currentUser?.role === "admin";
   // 1. Initial State from localStorage or Seeds
   const [products, setProducts] = useState(() => {
-    if (isSupabaseConfigured) return [];
+    if (isSupabaseConfigured) return INITIAL_PRODUCTS;
     const saved = localStorage.getItem("aura_products");
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
@@ -93,20 +97,26 @@ export const StoreProvider = ({ children }) => {
     if (!isSupabaseConfigured) return;
 
     let active = true;
+    if (!userId) setOrders([]);
     const refresh = async (table) => {
       try {
         if (table === "products") setProducts(await fetchProducts());
         if (table === "reviews") setReviews(await fetchReviews());
-        if (table === "orders") setOrders(await fetchOrders());
+        if (table === "orders" && userId) setOrders(await fetchOrders());
       } catch (error) {
         console.warn(`Supabase ${table} load failed:`, error.message);
       }
     };
 
-    Promise.all([fetchProducts(), fetchReviews(), fetchOrders(), fetchStoreSettings()])
+    Promise.all([
+      fetchProducts(),
+      fetchReviews(),
+      userId ? fetchOrders() : Promise.resolve([]),
+      fetchStoreSettings()
+    ])
       .then(([remoteProducts, remoteReviews, remoteOrders, remoteSettings]) => {
         if (!active) return;
-        if (remoteProducts.length) setProducts(remoteProducts);
+        setProducts(remoteProducts.length ? remoteProducts : INITIAL_PRODUCTS);
         if (remoteReviews.length) setReviews(remoteReviews);
         if (remoteOrders.length) setOrders(remoteOrders);
         if (remoteSettings) {
@@ -120,17 +130,17 @@ export const StoreProvider = ({ children }) => {
         if (active) setSettingsHydrated(true);
       });
 
-    const unsubscribe = subscribeStoreChanges(table => { void refresh(table); });
+    const unsubscribe = subscribeStoreChanges(table => { void refresh(table); }, Boolean(userId));
     return () => {
       active = false;
       unsubscribe();
     };
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !settingsHydrated) return;
+    if (!isSupabaseConfigured || !settingsHydrated || !isAdmin) return;
     void saveStoreSettings(settings).catch(error => console.warn("Supabase settings save failed:", error.message));
-  }, [settings, settingsHydrated]);
+  }, [settings, settingsHydrated, isAdmin]);
 
   // Supabase Realtime keeps separate browser sessions in sync.
 

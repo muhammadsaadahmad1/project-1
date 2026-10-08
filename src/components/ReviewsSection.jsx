@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Star, CheckCircle, MessageSquare, Send, ThumbsUp } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { useAuth } from "../context/AuthContext";
@@ -17,7 +18,7 @@ export const ReviewsSection = ({ productId, productName }) => {
 
   // Filter approved reviews for this product
   const productReviews = reviews.filter(
-    r => r.productId === productId && (r.status === "approved" || r.userId === currentUser.uid)
+    r => r.productId === productId && (r.status === "approved" || r.userId === currentUser?.id)
   );
 
   const breakdown = getRatingBreakdown(reviews, productId);
@@ -30,7 +31,7 @@ export const ReviewsSection = ({ productId, productName }) => {
     try {
       await addReview({
         productId,
-        userId: currentUser.uid,
+        userId: currentUser.id,
         userName: currentUser.displayName || "Fragrance Connoisseur",
         userLocation: currentUser.address?.includes(",") ? currentUser.address.split(",").slice(-2).join(", ") : "Verified Patron",
         rating: Number(rating),
@@ -121,7 +122,7 @@ export const ReviewsSection = ({ productId, productName }) => {
       </div>
 
       {/* Review Submission Form */}
-      <form 
+      {currentUser ? <form
         onSubmit={handleSubmitReview}
         className="glass-panel"
         style={{ padding: "1.5rem", marginBottom: "2.5rem" }}
@@ -227,7 +228,11 @@ export const ReviewsSection = ({ productId, productName }) => {
             <span>{isSubmitting ? "Publishing..." : "Submit Live Review"}</span>
           </button>
         </div>
-      </form>
+      </form> : (
+        <div className="glass-panel" style={{ padding: "1.5rem", marginBottom: "2.5rem", color: "#a1a1aa", fontSize: "0.88rem" }}>
+          <Link to="/signin" style={{ color: "var(--gold-400)" }}>Sign in</Link> to leave a review.
+        </div>
+      )}
 
       {/* Live Reviews Feed */}
       <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>

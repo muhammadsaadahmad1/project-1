@@ -78,7 +78,7 @@ export const OrderSuccessModal = ({ order, onClose, onOpenTracker }) => {
         </h2>
 
         <p style={{ fontSize: "0.92rem", color: "#a1a1aa", maxWidth: "480px", margin: "0 auto 1.8rem auto", lineHeight: 1.6 }}>
-          Your precious fragrances have been secured from our inventory. We have initiated the WhatsApp Business dispatch protocol to notify the atelier.
+          Your fragrances are reserved. Send your order details to our team on WhatsApp so they can confirm and prepare your order.
         </p>
 
         {/* WhatsApp Business Dispatch Banner */}
@@ -93,11 +93,11 @@ export const OrderSuccessModal = ({ order, onClose, onOpenTracker }) => {
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}>
             <MessageCircle size={20} color="#25d366" />
             <h4 style={{ fontSize: "1.05rem", color: "#fff", margin: 0 }}>
-              WhatsApp Business API Dispatch
+              Send Your Order on WhatsApp
             </h4>
           </div>
           <p style={{ fontSize: "0.82rem", color: "#d4d4d8", lineHeight: 1.5, marginBottom: "1rem" }}>
-            Click below to instantly route your order dossier to the boutique master on WhatsApp for rapid confirmation and concierge packing.
+            Send your order details to our team on WhatsApp for confirmation and packing.
           </p>
 
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
@@ -107,7 +107,7 @@ export const OrderSuccessModal = ({ order, onClose, onOpenTracker }) => {
               style={{ flex: 1, minWidth: "220px" }}
             >
               <MessageCircle size={18} />
-              <span>Send to Atelier on WhatsApp</span>
+              <span>Message Us on WhatsApp</span>
               <ExternalLink size={14} />
             </button>
 

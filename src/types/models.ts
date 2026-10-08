@@ -67,8 +67,9 @@ export interface User {
   email: string;
   phone?: string;
   address?: string;
-  isGuest?: boolean;
-  isAdmin?: boolean;
+  role?: "user" | "admin";
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
 }
 
 export interface Review {

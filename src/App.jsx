@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { 
   StoreProvider, 
   useStore 
@@ -18,9 +19,8 @@ import { CartDrawer } from "./components/CartDrawer";
 import { CheckoutModal } from "./components/CheckoutModal";
 import { OrderSuccessModal } from "./components/OrderSuccessModal";
 import { OrderHistoryModal } from "./components/OrderHistoryModal";
-import { AuthModal } from "./components/AuthModal";
 import { AdminLayout } from "./components/admin/AdminLayout";
-import { AdminPasscodeModal } from "./components/AdminPasscodeModal";
+import { AdminLoginPage, ProfilePage, RegisterPage, SignInPage, VerifyPage } from "./components/auth/AuthPages";
 import { 
   SlidersHorizontal, 
   Sparkles, 
@@ -34,7 +34,9 @@ import {
 
 const MainStorefront = () => {
   const { products, settings } = useStore();
-  const { isAdmin } = useAuth();
+  const { currentUser } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,17 +49,20 @@ const MainStorefront = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [placedOrder, setPlacedOrder] = useState(null);
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [isAdminPasscodeModalOpen, setIsAdminPasscodeModalOpen] = useState(false);
 
-  const handleOpenAdmin = () => {
-    if (!isAdmin) {
-      setIsAdminPasscodeModalOpen(true);
-    } else {
-      setIsAdminOpen(true);
+  const handleOpenOrderHistory = () => {
+    if (currentUser) {
+      setIsOrderHistoryOpen(true);
+      return;
     }
+    navigate("/signin", { state: { from: { pathname: "/", search: "?orders=1" } } });
   };
+
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get("orders") !== "1") return;
+    setIsOrderHistoryOpen(true);
+    navigate("/", { replace: true });
+  }, [location.search, navigate]);
 
   // Filtering & Sorting
   const filteredProducts = useMemo(() => {
@@ -123,9 +128,7 @@ const MainStorefront = () => {
         setSearchTerm={setSearchTerm}
         selectedFamily={selectedFamily}
         setSelectedFamily={setSelectedFamily}
-        onOpenAdmin={handleOpenAdmin}
-        onOpenOrderHistory={() => setIsOrderHistoryOpen(true)}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenOrderHistory={handleOpenOrderHistory}
       />
 
       {/* Hero Visual Showcase */}
@@ -295,13 +298,13 @@ const MainStorefront = () => {
 
             <div>
               <h5 style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--gold-400)", marginBottom: "1rem" }}>
-                Atelier Concierge
+                Customer Support
               </h5>
               <ul style={{ listStyle: "none", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <li>Complimentary Bespoke Scent Samples</li>
                 <li>WhatsApp Order Concierge (+92 315-9146234)</li>
                 <li>White-Glove Express Courier Dispatch</li>
-                <li>Atelier Master Scent Profiling</li>
+                <li>Personal Fragrance Recommendations</li>
               </ul>
             </div>
 
@@ -311,13 +314,10 @@ const MainStorefront = () => {
               </h5>
               <ul style={{ listStyle: "none", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <li style={{ cursor: "pointer", color: "#d4d4d8" }} onClick={() => setIsOrderHistoryOpen(true)}>
-                  Track Order Dossier
+                  Track Your Order
                 </li>
-                <li style={{ cursor: "pointer", color: "#d4d4d8" }} onClick={() => setIsAuthModalOpen(true)}>
-                  Patron Account Login
-                </li>
-                <li style={{ cursor: "pointer", color: "#d4d4d8" }} onClick={handleOpenAdmin}>
-                  Atelier Master Admin Portal
+                <li style={{ cursor: "pointer", color: "#d4d4d8" }} onClick={() => navigate("/profile")}>
+                  My Profile
                 </li>
               </ul>
             </div>
@@ -327,7 +327,7 @@ const MainStorefront = () => {
                 Authentication & Guarantee
               </h5>
               <p style={{ fontSize: "0.82rem", lineHeight: 1.6, color: "#a1a1aa" }}>
-                Every bottle is compounded from high-purity natural harvests. Batch numbered and sealed with atelier wax crest.
+                Each bottle is made with high-quality natural ingredients, numbered by batch, and sealed for authenticity.
               </p>
             </div>
           </div>
@@ -342,11 +342,9 @@ const MainStorefront = () => {
             gap: "1rem",
             fontSize: "0.78rem"
           }}>
-            <span>© {new Date().getFullYear()} AURA PARFUMS Atelier. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} AURA PARFUMS. All rights reserved.</span>
             <div style={{ display: "flex", gap: "1rem" }}>
-              <span style={{ cursor: "pointer" }} onClick={handleOpenAdmin}>Admin Control</span>
-              <span>•</span>
-              <span style={{ cursor: "pointer" }} onClick={() => setIsOrderHistoryOpen(true)}>Live Order Tracking</span>
+              <span style={{ cursor: "pointer" }} onClick={handleOpenOrderHistory}>Live Order Tracking</span>
             </div>
           </div>
         </div>
@@ -381,37 +379,66 @@ const MainStorefront = () => {
         onClose={() => setIsOrderHistoryOpen(false)}
       />
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onOpenAdmin={handleOpenAdmin}
-      />
-
-      <AdminPasscodeModal
-        isOpen={isAdminPasscodeModalOpen}
-        onClose={() => setIsAdminPasscodeModalOpen(false)}
-        onSuccess={() => {
-          setIsAdminPasscodeModalOpen(false);
-          setIsAdminOpen(true);
-        }}
-      />
-
-      <AdminLayout
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-      />
     </div>
   );
 };
 
+const RequireAuth = () => {
+  const { currentUser, authLoading } = useAuth();
+  const location = useLocation();
+  if (authLoading) return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", color: "#a1a1aa" }}>Loading...</div>;
+  if (!currentUser) return <Navigate to="/signin" replace state={{ from: location }} />;
+  return <Outlet />;
+};
+
+const RequireAdmin = () => {
+  const { currentUser, verifyCurrentAdmin } = useAuth();
+  const [access, setAccess] = useState("checking");
+
+  useEffect(() => {
+    let active = true;
+    if (!currentUser) {
+      setAccess("denied");
+      return () => { active = false; };
+    }
+    void verifyCurrentAdmin().then(isAllowed => {
+      if (active) setAccess(isAllowed ? "allowed" : "denied");
+    });
+    return () => { active = false; };
+  }, [currentUser, verifyCurrentAdmin]);
+
+  if (access === "checking") return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", color: "#a1a1aa" }}>Loading...</div>;
+  if (access !== "allowed") return <Navigate to="/" replace />;
+  return <Outlet />;
+};
+
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/signin" element={<SignInPage />} />
+    <Route path="/register" element={<RegisterPage />} />
+    <Route path="/verify" element={<VerifyPage />} />
+    <Route path="/admin-login" element={<AdminLoginPage />} />
+    <Route path="/" element={<MainStorefront />} />
+    <Route element={<RequireAuth />}>
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route element={<RequireAdmin />}>
+        <Route path="/admin" element={<AdminLayout />} />
+      </Route>
+    </Route>
+    <Route path="*" element={<Navigate to="/" replace />} />
+  </Routes>
+);
+
 export default function App() {
   return (
-    <StoreProvider>
-      <CartProvider>
-        <AuthProvider>
-          <MainStorefront />
-        </AuthProvider>
-      </CartProvider>
-    </StoreProvider>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AuthProvider>
+        <StoreProvider>
+          <CartProvider>
+            <AppRoutes />
+          </CartProvider>
+        </StoreProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

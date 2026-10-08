@@ -310,7 +310,7 @@ export const OrderManager = () => {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.2rem" }}>
               <div>
                 <span style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "var(--gold-400)", letterSpacing: "0.1em" }}>
-                  Order Details Dossier
+                  Order Details
                 </span>
                 <h4 style={{ fontSize: "1.3rem", color: "#fff", margin: 0 }}>
                   Order #{selectedOrder.id}
@@ -322,7 +322,7 @@ export const OrderManager = () => {
               </button>
             </div>
 
-            {/* Customer Dossier */}
+            {/* Customer Details */}
             <div style={{ background: "rgba(255, 255, 255, 0.02)", padding: "1rem", borderRadius: "8px", marginBottom: "1.2rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#fff", fontSize: "0.9rem", fontWeight: 600, marginBottom: "0.4rem" }}>
                 <User size={15} color="var(--gold-400)" />

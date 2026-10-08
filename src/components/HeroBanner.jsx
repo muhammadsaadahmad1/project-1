@@ -78,7 +78,7 @@ export const HeroBanner = ({ onExploreClick }) => {
           lineHeight: 1.7,
           fontWeight: 300
         }}>
-          Masterfully compounded in Grasse with rarest botanicals, wild-harvested oud, and precious floral absolutes. Each flacon is hand-numbered with real-time atelier inventory.
+          Made in Grasse with rare botanicals, wild-harvested oud, and precious flowers. Each bottle is numbered, and stock is updated in real time.
         </p>
 
         {/* CTA Buttons */}

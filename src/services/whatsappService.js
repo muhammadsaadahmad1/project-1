@@ -18,7 +18,7 @@ export const formatWhatsAppOrderMessage = (order, businessName = "AURA PARFUMS")
 📅 *Date:* ${new Date(order.createdAt).toLocaleString()}
 💳 *Payment:* ${order.paymentMethod} (${order.paymentStatus.toUpperCase()})
 
-👤 *CUSTOMER DOSSIER:*
+👤 *CUSTOMER DETAILS:*
 • Name: ${order.customer.name}
 • Phone: ${order.customer.phone}
 • Email: ${order.customer.email}

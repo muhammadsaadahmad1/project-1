@@ -6,183 +6,126 @@ import {
   signInAdmin,
   signInUser,
   signOutUser,
+  verifyCurrentAdmin,
+  resendVerificationCode,
+  requestContactVerification,
+  verifyAuthOtp,
   updateUserProfile as updateSupabaseUserProfile
 } from "../services/authApi";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(() => {
-    if (isSupabaseConfigured) {
-      localStorage.removeItem("aura_user");
-      return {
-        uid: "usr-guest-01",
-        displayName: "Guest Patron",
-        email: "guest@auraparfums.com",
-        phone: "+14155550198",
-        address: "742 Evergreen Terrace, Beverly Hills, CA 90210",
-        isGuest: true
-      };
-    }
-    const saved = localStorage.getItem("aura_user");
-    return saved ? JSON.parse(saved) : {
-      uid: "usr-guest-01",
-      displayName: "Guest Patron",
-      email: "guest@auraparfums.com",
-      phone: "+14155550198",
-      address: "742 Evergreen Terrace, Beverly Hills, CA 90210",
-      isGuest: true
-    };
-  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(isSupabaseConfigured);
 
-  const [isAdmin, setIsAdmin] = useState(() => {
-    localStorage.removeItem("aura_is_admin");
-    sessionStorage.removeItem("aura_is_admin");
-    return false;
-  });
-
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  // Sync to localStorage
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
-      localStorage.setItem("aura_user", JSON.stringify(currentUser));
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (isAdmin) {
-      sessionStorage.setItem("aura_is_admin", "true");
-    } else {
-      sessionStorage.removeItem("aura_is_admin");
-      localStorage.removeItem("aura_is_admin");
-    }
-  }, [isAdmin]);
-
-  // Supabase Auth is the source of truth for customer and administrator sessions.
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) return;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    let active = true;
+    let requestId = 0;
+    const applySession = async (session) => {
+      const currentRequest = ++requestId;
       if (!session?.user) {
-        setIsAdmin(false);
-        setCurrentUser({ uid: "usr-guest-01", displayName: "Guest Patron", email: "guest@auraparfums.com", isGuest: true });
+        if (active && currentRequest === requestId) {
+          setCurrentUser(null);
+          setAuthLoading(false);
+        }
         return;
       }
-      const userId = session.user.id;
-      setTimeout(() => {
-        fetchUserProfile(userId).then(profile => {
-          setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
-          setIsAdmin(Boolean(profile.isAdmin));
-        }).catch(error => console.error("Failed to load Supabase user profile", error));
-      }, 0);
-    });
+      try {
+        const profile = await fetchUserProfile(session.user.id);
+        if (active && currentRequest === requestId) setCurrentUser(profile);
+      } catch (error) {
+        if (active && currentRequest === requestId) {
+          setCurrentUser(null);
+          console.error("Failed to load user profile", error);
+        }
+      } finally {
+        if (active && currentRequest === requestId) setAuthLoading(false);
+      }
+    };
 
-    return () => subscription.unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      void applySession(session);
+    });
+    void supabase.auth.getSession().then(({ data }) => applySession(data.session));
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const loginAdmin = async (email, password) => {
+  const loginAdmin = async (identifier, password) => {
     try {
-      const profile = await signInAdmin(email, password);
-      setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
-      setIsAdmin(true);
+      const profile = await signInAdmin(identifier, password);
+      setCurrentUser(profile);
       return { success: true };
     } catch (error) {
-      return { success: false, message: error.message || "Administrator sign-in failed." };
+      return { success: false, message: "Invalid credentials or access denied." };
     }
   };
 
-  const logoutAdmin = () => {
-    setIsAdmin(false);
-    if (isSupabaseConfigured) void logoutUser().catch(error => console.error("Supabase sign-out failed", error));
-  };
-
-  const loginUser = async (email, password) => {
-    if (isSupabaseConfigured) {
-      try {
-        const profile = await signInUser(email, password);
-        setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
-        setIsAdmin(Boolean(profile.isAdmin));
-        return { success: true };
-      } catch (err) {
-        return { success: false, message: err.message };
-      }
-    } else {
-      // Local mode login simulation
-      setCurrentUser({
-        uid: `usr-${Date.now()}`,
-        displayName: email.split("@")[0],
-        email: email,
-        phone: "+14155550198",
-        address: "742 Evergreen Terrace, Beverly Hills, CA 90210",
-        isGuest: false
-      });
+  const loginUser = async (identifier, password) => {
+    try {
+      const profile = await signInUser(identifier, password);
+      setCurrentUser(profile);
       return { success: true };
+    } catch (error) {
+      return { success: false, message: "Unable to sign in. Check your details and try again." };
     }
   };
 
-  const registerUser = async (name, email, password) => {
-    if (isSupabaseConfigured) {
-      try {
-        const profile = await registerSupabaseUser(name, email, password);
-        setCurrentUser({ ...profile, uid: profile.id, isGuest: false });
-        return { success: true };
-      } catch (err) {
-        return { success: false, message: err.message };
-      }
-    } else {
-      setCurrentUser({
-        uid: `usr-${Date.now()}`,
-        displayName: name,
-        email: email,
-        phone: "+14155550198",
-        address: "Boutique Suite, Manhattan, NY",
-        isGuest: false
-      });
-      return { success: true };
+  const registerUser = async ({ email, password }) => {
+    try {
+      const registration = await registerSupabaseUser(email, password);
+      if (registration.profile) setCurrentUser(registration.profile);
+      return { success: true, confirmationRequired: registration.confirmationRequired };
+    } catch (error) {
+      const message = error.message || "Unable to create your account.";
+      return {
+        success: false,
+        message: /email address not authorized/i.test(message)
+          ? "Email delivery is limited to project-team addresses. Configure custom SMTP in Supabase to send codes to customers."
+          : message
+      };
     }
   };
 
-  const updateUserProfile = (profileData) => {
-    setCurrentUser(prev => ({
-      ...prev,
-      ...profileData
-    }));
-    if (isSupabaseConfigured && currentUser?.uid && !currentUser.isGuest) {
-      void updateSupabaseUserProfile(currentUser.uid, {
-        displayName: profileData.displayName || currentUser.displayName,
-        phone: profileData.phone ?? currentUser.phone,
-        address: profileData.address ?? currentUser.address
-      }).catch(error => console.error("Failed to save user profile", error));
-    }
+  const updateUserProfile = async (profileData) => {
+    if (!currentUser) return;
+    const updatedProfile = {
+      ...currentUser,
+      displayName: profileData.displayName ?? currentUser.displayName,
+      address: profileData.address ?? currentUser.address
+    };
+    setCurrentUser(updatedProfile);
+    await updateSupabaseUserProfile(currentUser.id, {
+      displayName: updatedProfile.displayName,
+      address: updatedProfile.address
+    });
   };
 
   const logoutUser = async () => {
-    if (isSupabaseConfigured) {
-      await signOutUser();
-    }
-    setIsAdmin(false);
-    setCurrentUser({
-      uid: "usr-guest-01",
-      displayName: "Guest Patron",
-      email: "guest@auraparfums.com",
-      isGuest: true
-    });
+    await signOutUser();
+    setCurrentUser(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
         currentUser,
-        isAdmin,
-        isAuthModalOpen,
-        setIsAuthModalOpen,
+        authLoading,
         loginAdmin,
-        logoutAdmin,
         loginUser,
         registerUser,
+        verifyCurrentAdmin,
         logoutUser,
-        updateUserProfile
+        updateUserProfile,
+        requestContactVerification,
+        resendVerificationCode,
+        verifyAuthOtp
       }}
     >
       {children}

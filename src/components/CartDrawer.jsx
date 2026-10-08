@@ -56,7 +56,7 @@ export const CartDrawer = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
             <ShoppingBag size={20} color="var(--gold-400)" />
             <h3 style={{ fontSize: "1.3rem", color: "#fff", margin: 0 }}>
-              Your Atelier Bag ({items.length})
+              Your Cart ({items.length})
             </h3>
           </div>
 
