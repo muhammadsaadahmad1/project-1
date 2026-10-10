@@ -4,7 +4,6 @@ import {
   MessageCircle, 
   Sparkles, 
   ExternalLink, 
-  Clock, 
   Package, 
   X,
   Share2
@@ -12,7 +11,7 @@ import {
 import { useStore } from "../context/StoreContext";
 import { formatWhatsAppOrderMessage, generateWhatsAppLink } from "../services/whatsappService";
 
-export const OrderSuccessModal = ({ order, onClose, onOpenTracker }) => {
+export const OrderSuccessModal = ({ order, onClose }) => {
   const { settings } = useStore();
   const [copied, setCopied] = useState(false);
 
@@ -143,18 +142,6 @@ export const OrderSuccessModal = ({ order, onClose, onOpenTracker }) => {
 
         {/* Action Controls */}
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-          <button 
-            className="btn-outline" 
-            onClick={() => {
-              onClose();
-              onOpenTracker();
-            }}
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-          >
-            <Clock size={16} />
-            <span>Track Live Order Status</span>
-          </button>
-
           <button className="btn-gold" onClick={onClose}>
             Continue Browsing
           </button>

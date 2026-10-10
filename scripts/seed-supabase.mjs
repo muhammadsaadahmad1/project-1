@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { APP_SETTINGS, INITIAL_ORDERS, INITIAL_PRODUCTS, INITIAL_REVIEWS } from "../src/data/initialProducts.js";
+import { APP_SETTINGS, INITIAL_PRODUCTS } from "../src/data/initialProducts.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -18,33 +18,13 @@ const products = INITIAL_PRODUCTS.map(product => ({
   created_at: product.createdAt
 }));
 
-const reviews = INITIAL_REVIEWS.map(review => ({
-  id: review.id,
-  product_id: review.productId,
-  user_id: null,
-  status: review.status,
-  data: review,
-  created_at: review.createdAt
-}));
-
-const orders = INITIAL_ORDERS.map(order => ({
-  id: order.id,
-  user_id: null,
-  status: order.status,
-  payment_status: order.paymentStatus,
-  data: order,
-  created_at: order.createdAt
-}));
-
 const settings = { ...APP_SETTINGS };
 delete settings.adminPasscode;
 
-for (const [table, rows] of [["products", products], ["reviews", reviews], ["orders", orders]]) {
-  const { error } = await supabase.from(table).upsert(rows);
-  if (error) throw new Error(`Failed to seed ${table}: ${error.message}`);
-  console.log(`Seeded ${rows.length} ${table}.`);
-}
+const { error: productsError } = await supabase.from("products").upsert(products);
+if (productsError) throw new Error(`Failed to seed products: ${productsError.message}`);
+console.log(`Seeded ${products.length} products.`);
 
-const { error } = await supabase.from("store_settings").upsert({ id: "main", data: settings });
-if (error) throw new Error(`Failed to seed store settings: ${error.message}`);
+const { error: settingsError } = await supabase.from("store_settings").upsert({ id: "main", data: settings });
+if (settingsError) throw new Error(`Failed to seed store settings: ${settingsError.message}`);
 console.log("Seeded store settings.");

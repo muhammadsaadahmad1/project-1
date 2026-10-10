@@ -332,6 +332,9 @@ export const OrderManager = () => {
                 <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                   <Phone size={13} /> {selectedOrder.customer.phone}
                 </span>
+                {selectedOrder.customer.email && (
+                  <span>{selectedOrder.customer.email}</span>
+                )}
                 <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                   <MapPin size={13} /> {typeof selectedOrder.customer.address === "object" ? selectedOrder.customer.address.street : selectedOrder.customer.address}
                 </span>

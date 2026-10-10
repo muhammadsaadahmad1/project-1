@@ -25,9 +25,8 @@ import {
 const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
-  const { currentUser } = useAuth();
-  const userId = currentUser?.id;
-  const isAdmin = currentUser?.role === "admin";
+  const { currentAdmin } = useAuth();
+  const isAdmin = currentAdmin?.role === "admin";
   // 1. Initial State from localStorage or Seeds
   const [products, setProducts] = useState(() => {
     if (isSupabaseConfigured) return INITIAL_PRODUCTS;
@@ -97,12 +96,12 @@ export const StoreProvider = ({ children }) => {
     if (!isSupabaseConfigured) return;
 
     let active = true;
-    if (!userId) setOrders([]);
+    if (!isAdmin) setOrders([]);
     const refresh = async (table) => {
       try {
         if (table === "products") setProducts(await fetchProducts());
         if (table === "reviews") setReviews(await fetchReviews());
-        if (table === "orders" && userId) setOrders(await fetchOrders());
+        if (table === "orders" && isAdmin) setOrders(await fetchOrders());
       } catch (error) {
         console.warn(`Supabase ${table} load failed:`, error.message);
       }
@@ -111,14 +110,14 @@ export const StoreProvider = ({ children }) => {
     Promise.all([
       fetchProducts(),
       fetchReviews(),
-      userId ? fetchOrders() : Promise.resolve([]),
+      isAdmin ? fetchOrders() : Promise.resolve([]),
       fetchStoreSettings()
     ])
       .then(([remoteProducts, remoteReviews, remoteOrders, remoteSettings]) => {
         if (!active) return;
-        setProducts(remoteProducts.length ? remoteProducts : INITIAL_PRODUCTS);
+        setProducts(remoteProducts);
         if (remoteReviews.length) setReviews(remoteReviews);
-        if (remoteOrders.length) setOrders(remoteOrders);
+        setOrders(remoteOrders);
         if (remoteSettings) {
           delete remoteSettings.adminPasscode;
           setSettings(prev => ({ ...prev, ...remoteSettings }));
@@ -130,12 +129,12 @@ export const StoreProvider = ({ children }) => {
         if (active) setSettingsHydrated(true);
       });
 
-    const unsubscribe = subscribeStoreChanges(table => { void refresh(table); }, Boolean(userId));
+    const unsubscribe = subscribeStoreChanges(table => { void refresh(table); }, isAdmin);
     return () => {
       active = false;
       unsubscribe();
     };
-  }, [userId]);
+  }, [isAdmin]);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !settingsHydrated || !isAdmin) return;

@@ -75,7 +75,7 @@ export interface User {
 export interface Review {
   id: string;
   productId: string;
-  userId: string;
+  userId?: string | null;
   userName: string;
   userLocation?: string;
   rating: number;

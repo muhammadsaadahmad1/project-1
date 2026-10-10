@@ -1,63 +1,39 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { 
   X, 
   CreditCard, 
   Truck, 
-  ShieldCheck, 
-  CheckCircle, 
   Lock, 
-  Phone,
   MessageCircle,
   MapPin,
   ArrowRight
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useStore } from "../context/StoreContext";
-import { useAuth } from "../context/AuthContext";
 
 export const CheckoutModal = ({ onOrderPlaced }) => {
   const { items, subtotal, shipping, total, clearCart, isCheckoutOpen, setIsCheckoutOpen, setIsCartOpen } = useCart();
   const { placeOrder, settings } = useStore();
-  const { currentUser, updateUserProfile } = useAuth();
-  const navigate = useNavigate();
-
-  const [name, setName] = useState(currentUser?.displayName || "");
-  const [email, setEmail] = useState(currentUser?.email || "");
-  const [phone, setPhone] = useState(currentUser?.phone || "+14155550198");
-  const [address, setAddress] = useState(currentUser?.address || "");
-  const [notes, setNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("Credit Card (Secure Stripe)");
-  const [cardNumber, setCardNumber] = useState("4242 •••• •••• 4242");
-  const [cardExp, setCardExp] = useState("12/28");
-  const [cardCvc, setCardCvc] = useState("888");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [paymentMethod] = useState("Cash on Delivery");
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   if (!isCheckoutOpen) return null;
 
-  if (!currentUser) {
-    const signInState = { from: { pathname: "/" } };
-    return (
-      <div className="modal-backdrop" onClick={() => setIsCheckoutOpen(false)}>
-        <div className="modal-content" onClick={event => event.stopPropagation()} style={{ width: "100%", maxWidth: "440px", padding: "2rem", textAlign: "center" }}>
-          <div style={{ width: "52px", height: "52px", display: "grid", placeItems: "center", margin: "0 auto 1rem", borderRadius: "50%", color: "var(--gold-400)", border: "1px solid var(--border-gold)" }}>
-            <Lock size={22} />
-          </div>
-          <h2 style={{ color: "#fff", fontSize: "1.6rem", marginBottom: "0.5rem" }}>Sign in to complete your order</h2>
-          <p style={{ color: "#a1a1aa", fontSize: "0.88rem", marginBottom: "1.4rem" }}>Your bag will be here when you return.</p>
-          <button className="btn-gold" onClick={() => navigate("/signin", { state: signInState })} style={{ width: "100%" }}>Sign In</button>
-          <button className="btn-outline" onClick={() => navigate("/register", { state: signInState })} style={{ width: "100%", marginTop: "0.65rem" }}>Create an Account</button>
-          <button className="btn-outline" onClick={() => { setIsCheckoutOpen(false); setIsCartOpen(true); }} style={{ width: "100%", marginTop: "0.65rem" }}>Back to Bag</button>
-        </div>
-      </div>
-    );
-  }
-
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
-    if (!name || !email || !phone || !address) {
-      setErrorMsg("Please complete all required customer fields.");
+    const normalizedPhone = phone.trim();
+    const normalizedEmail = email.trim();
+    if (!name.trim() || !normalizedPhone || !address.trim()) {
+      setErrorMsg("Please complete your name, delivery address, and phone number.");
+      return;
+    }
+    if (!/^\+[1-9]\d{7,14}$/.test(normalizedPhone)) {
+      setErrorMsg("Enter a valid phone number in international format, such as +14155550198.");
       return;
     }
 
@@ -65,16 +41,12 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
     setErrorMsg("");
 
     try {
-      // Save customer profile updates
-      void updateUserProfile({ displayName: name, address }).catch(error => console.error("Profile update failed", error));
-
       const orderPayload = {
         customer: {
-          name,
-          email,
-          phone,
-          address,
-          notes
+          name: name.trim(),
+          email: normalizedEmail,
+          phone: normalizedPhone,
+          address: address.trim()
         },
         items: items.map(i => ({
           productId: i.productId,
@@ -89,7 +61,7 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
         shipping,
         total,
         paymentMethod,
-        paymentStatus: paymentMethod.includes("Card") ? "paid" : "pending"
+        paymentStatus: "pending"
       };
 
       // Atomic decrement of inventory & order creation
@@ -127,7 +99,7 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
 
         <div style={{ marginBottom: "1.8rem" }}>
           <span style={{ fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--gold-400)", fontWeight: 600 }}>
-            Concierge Checkout & Inventory Allocation
+            Guest Checkout & Inventory Allocation
           </span>
           <h2 style={{ fontSize: "2rem", color: "#fff", marginTop: "0.2rem" }}>
             Secure Your Artisanal Creation
@@ -163,6 +135,8 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
                   type="text"
                   className="form-input"
                   required
+                  maxLength={120}
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Lord Alistair Montgomery"
@@ -170,11 +144,12 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Email Address *</label>
+                <label className="form-label">Email Address (optional)</label>
                 <input
                   type="email"
                   className="form-input"
-                  required
+                  maxLength={254}
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@luxurymail.com"
@@ -191,9 +166,11 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
                     type="tel"
                     className="form-input"
                     required
+                    maxLength={16}
+                    pattern="\+[1-9][0-9]{7,14}"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+14155552671"
+                    placeholder="+14155550198"
                   />
                   <MessageCircle size={15} color="#25d366" style={{ position: "absolute", right: "0.9rem", top: "50%", transform: "translateY(-50%)" }} />
                 </div>
@@ -205,22 +182,13 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
                   className="form-textarea"
                   rows="2"
                   required
+                  maxLength={1000}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="Penthouse Suite, 432 Park Ave, New York, NY 10022"
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Concierge & Courier Notes (Optional)</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="e.g. Hand to doorman, fragrance gift wrapping"
-                />
-              </div>
             </div>
 
             {/* Right Column: Payment & Order Summary */}
@@ -230,86 +198,13 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
                 <span>Payment & Allocation</span>
               </h4>
 
-              {/* Payment Methods */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.2rem" }}>
-                {[
-                  { id: "Credit Card (Secure Stripe)", label: "Credit Card / Encrypted Vault", desc: "Visa, Mastercard, Amex" },
-                  { id: "Cash on Delivery", label: "Cash on Delivery (White Glove Courier)", desc: "Pay upon safe arrival" },
-                  { id: "Apple Pay / Google Pay", label: "Digital Wallet (Apple / Google Pay)", desc: "Instant tokenized authentication" }
-                ].map(method => {
-                  const isSelected = paymentMethod === method.id;
-                  return (
-                    <div
-                      key={method.id}
-                      onClick={() => setPaymentMethod(method.id)}
-                      style={{
-                        padding: "0.85rem 1rem",
-                        borderRadius: "8px",
-                        background: isSelected ? "rgba(212, 175, 55, 0.12)" : "rgba(255, 255, 255, 0.03)",
-                        border: `1px solid ${isSelected ? "var(--gold-500)" : "rgba(255, 255, 255, 0.08)"}`,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontSize: "0.88rem", fontWeight: 600, color: isSelected ? "var(--gold-300)" : "#fff" }}>
-                          {method.label}
-                        </div>
-                        <div style={{ fontSize: "0.72rem", color: "#a1a1aa" }}>{method.desc}</div>
-                      </div>
-                      <div style={{
-                        width: "16px",
-                        height: "16px",
-                        borderRadius: "50%",
-                        border: `2px solid ${isSelected ? "var(--gold-500)" : "#52525b"}`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                      }}>
-                        {isSelected && <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--gold-500)" }} />}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Mock Card Details if card selected */}
-              {paymentMethod.includes("Card") && (
-                <div className="glass-panel" style={{ padding: "1rem", marginBottom: "1.2rem", background: "rgba(10, 10, 12, 0.6)" }}>
-                  <div className="form-group" style={{ marginBottom: "0.8rem" }}>
-                    <label className="form-label" style={{ fontSize: "0.74rem" }}>Card Number</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                    />
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label" style={{ fontSize: "0.74rem" }}>Expiration</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={cardExp}
-                        onChange={(e) => setCardExp(e.target.value)}
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label" style={{ fontSize: "0.74rem" }}>Security CVC</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                      />
-                    </div>
-                  </div>
+              <div className="glass-panel" style={{ padding: "1rem", marginBottom: "1.2rem", background: "rgba(10, 10, 12, 0.6)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.55rem", color: "#fff", fontWeight: 600 }}>
+                  <Truck size={16} color="var(--gold-400)" />
+                  <span>Cash on delivery</span>
                 </div>
-              )}
+                <p style={{ color: "#a1a1aa", fontSize: "0.78rem", margin: "0.45rem 0 0" }}>Payment is collected by the courier when your order arrives.</p>
+              </div>
 
               {/* Order Summary Box */}
               <div className="glass-panel" style={{ padding: "1.25rem", marginTop: "auto", background: "rgba(0, 0, 0, 0.3)" }}>

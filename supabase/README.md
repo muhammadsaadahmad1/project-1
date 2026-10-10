@@ -13,21 +13,16 @@ These are public browser credentials. Never expose a service-role key through a
 `VITE_` variable or commit it. Optional catalog seeding uses `SUPABASE_URL` and
 `SUPABASE_SERVICE_ROLE_KEY` in a private shell environment only.
 
-## Auth Providers
+## Admin Authentication
 
-Email confirmation is enabled for customer registration. In the Supabase
-dashboard, open **Authentication → Email Templates → Confirm signup** and make
-sure the message includes `{{ .Token }}` so the customer receives the six-digit
-code entered on `/verify`. Email OTP length is six digits and the resend interval
-is 30 seconds. Phone signup is not offered and phone confirmation is off.
+Only administrators sign in through Supabase Auth. Public sign-up is disabled
+in `supabase/config.toml`; also disable **Authentication → Sign In / Providers
+→ Allow new users to sign up** in the hosted project. Create admin users
+manually in Supabase and assign `profiles.role = 'admin'` as described below.
 
-For delivery to real customer addresses, configure a custom SMTP provider in
-**Authentication → SMTP Settings**. Supabase's built-in mailer is for testing:
-it only sends to pre-authorized project-team addresses and is rate-limited.
-Check spam and the Auth logs if a code is still missing.
-
-The auth config in `supabase/config.toml` matches the linked project. If the
-email template is changed, make sure to retain the OTP token variable.
+Supabase Auth email/SMTP is separate from guest order email and remains available
+for administrator auth emails such as password recovery. Guest order confirmations
+are sent through Resend by the `send-order-confirmation` Edge Function.
 
 ## Apply Database Migrations
 
@@ -39,18 +34,9 @@ supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
 
-The full auth and access-control SQL is in
-`supabase/migrations/20260930000000_auth_verification_admin_requests.sql`.
-The following migration,
-`supabase/migrations/20260930120000_pause_admin_request_trigger.sql`, drops
-automatic admin-request creation and keeps contact verification flags false.
-The latest migration,
-`supabase/migrations/20260930130000_store_unverified_phone_metadata.sql`, stores
-an optional phone from email signup as unverified profile data without asking
-Supabase Auth to send an SMS. Apply all migrations with `supabase db push`.
-`supabase/migrations/20261004100000_sync_verified_email_profile.sql` restores
-profile verification-flag synchronization from Supabase Auth while leaving the
-admin-request trigger paused.
+Apply all migrations with `supabase db push`. The guest checkout migration
+validates contact details in the database, limits order reads to admins, and
+adds an inaccessible one-time-token table used by the email function.
 
 ## Add An Admin
 
@@ -66,31 +52,48 @@ where lower(email) = lower('admin@example.com');
 The Supabase Auth user trigger creates the profile. The account can then sign in
 at `/admin-login` and manage products, stock, and orders.
 
+The initial schema also creates products, orders, reviews, and store settings.
+The orders table is in the Supabase Realtime publication; its admin-only RLS
+policy filters both queries and Realtime events.
+
+The storefront and cart are public, and the cart persists in browser
+`localStorage`. Guest checkout requires a delivery address and international-
+format phone; email is optional. The database validates product, price, and
+stock before creating an order. Anonymous clients cannot read orders.
+
+The storefront no longer displays demo products when Supabase is configured
+but its catalog is empty. To seed the included catalog and store settings,
+provide `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to the private shell and
+run `npm run supabase:seed`. The seed script writes products and settings only;
+it does not create sample orders or reviews. Never put the service-role key in
+a `VITE_` variable.
+
+## Order Confirmation Email
+
+1. Create and verify a sending domain in Resend, then create an API key.
+2. Set Edge Function secrets; never put these in a `VITE_` variable:
+
+    ```sh
+    supabase secrets set RESEND_API_KEY=re_... ORDER_CONFIRMATION_FROM="AURA PARFUMS <orders@your-verified-domain.com>"
+    ```
+
+3. Deploy the function:
+
+    ```sh
+    supabase functions deploy send-order-confirmation
+    ```
+
+The client calls the function only after the order RPC succeeds. The function
+consumes a random, one-time order token through a service-role-only database
+RPC, then gets the recipient and order data from the database. Email failures
+are logged and do not fail or roll back the order. No email means no token and
+no function call.
+
 ## Test Checklist
 
-- Visitors can browse the catalog and add items to the bag without an account.
-- Checkout prompts guests to sign in or register; the bag remains intact and
-   checkout resumes after signup/sign-in.
-- Email-only registration sends a six-digit code; correct codes sign in and
-   return the customer to their intended page.
-- Incorrect codes show a generic error; resend is available after 30 seconds.
-- A Supabase operator can manually create an Auth user, set `profiles.role` to
-   `admin`, and the user can manage products, stock, and orders.
-- Automatic admin requests stay disabled; verification flags are still tracked
-   from Supabase Auth for later use.
-- A regular account cannot access `/admin`; `/admin-login` shows the same
-   generic denial for non-admin credentials.
-- The storefront has no standalone Admin button; the small Admin link is only
-   on the sign-in page.
-- As a regular account, direct table access to `admin_requests` is denied and
-   `list_admin_requests` returns an access-denied error.
-
-The initial schema also creates products, orders, reviews, and store settings.
-Enable the relevant tables in the Supabase Realtime publication if live updates
-are needed in the dashboard.
-
-The storefront and cart are public. If the Supabase `products` table is empty,
-the app displays the included demo catalog for browsing and bag use. Seed the
-matching catalog into Supabase before accepting live orders; checkout requires
-sign-in and the database order function validates each product against the
-Supabase catalog.
+- Guest order with a valid email: order succeeds and one confirmation is sent.
+- Guest order without email: order succeeds without calling the email function.
+- Invalid phone or missing address: client and database reject the order.
+- Anonymous direct `select` from `public.orders`: denied / returns no rows.
+- Admin sign-in: admin sees guest email, phone, and address; new orders appear live.
+- Non-admin user: admin route and order reads remain denied.

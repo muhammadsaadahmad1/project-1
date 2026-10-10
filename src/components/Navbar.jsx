@@ -3,24 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { 
   ShoppingBag, 
   Search, 
-  User, 
-  Clock, 
   Sparkles, 
   X,
   SlidersHorizontal
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
 
 export const Navbar = ({ 
   searchTerm, 
   setSearchTerm, 
   selectedFamily, 
-  setSelectedFamily, 
-  onOpenOrderHistory,
+  setSelectedFamily,
 }) => {
   const { totalItemsCount, setIsCartOpen, subtotal } = useCart();
-  const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
@@ -159,25 +154,13 @@ export const Navbar = ({
             <Search size={18} />
           </button>
 
-          {/* Patron Orders / Tracking */}
-          <button 
-            className="btn-icon"
-            onClick={onOpenOrderHistory}
-            title="Track Orders"
-            style={{ position: "relative" }}
-          >
-            <Clock size={18} />
-          </button>
-
-          {/* Patron Account / Auth */}
-          <button 
+          <button
             className="btn-outline"
-            onClick={() => navigate(currentUser ? "/profile" : "/signin")}
-            title={currentUser?.displayName || "Sign In / Register"}
+            onClick={() => navigate("/admin-login")}
+            title="Admin sign in"
             style={{ padding: "0.5rem 0.85rem", whiteSpace: "nowrap" }}
           >
-            <User size={18} />
-            <span>{currentUser ? "My Profile" : "Sign In / Register"}</span>
+            <span>Admin</span>
           </button>
 
           {/* Shopping Bag Button */}

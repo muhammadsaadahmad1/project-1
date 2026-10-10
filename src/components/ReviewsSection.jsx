@@ -1,24 +1,21 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { Star, CheckCircle, MessageSquare, Send, ThumbsUp } from "lucide-react";
 import { useStore } from "../context/StoreContext";
-import { useAuth } from "../context/AuthContext";
 import { getRatingBreakdown } from "../services/reviewService";
 
 export const ReviewsSection = ({ productId, productName }) => {
   const { reviews, addReview, settings } = useStore();
-  const { currentUser } = useAuth();
-
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
+  const [reviewerName, setReviewerName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Filter approved reviews for this product
   const productReviews = reviews.filter(
-    r => r.productId === productId && (r.status === "approved" || r.userId === currentUser?.id)
+    review => review.productId === productId && review.status === "approved"
   );
 
   const breakdown = getRatingBreakdown(reviews, productId);
@@ -31,15 +28,14 @@ export const ReviewsSection = ({ productId, productName }) => {
     try {
       await addReview({
         productId,
-        userId: currentUser.id,
-        userName: currentUser.displayName || "Fragrance Connoisseur",
-        userLocation: currentUser.address?.includes(",") ? currentUser.address.split(",").slice(-2).join(", ") : "Verified Patron",
+        userName: reviewerName.trim(),
         rating: Number(rating),
         title: title.trim() || `${rating}-Star Olfactory Review`,
         comment: comment.trim(),
-        verifiedPurchase: true
+        verifiedPurchase: false
       });
 
+      setReviewerName("");
       setTitle("");
       setComment("");
       setSubmitSuccess(true);
@@ -122,7 +118,7 @@ export const ReviewsSection = ({ productId, productName }) => {
       </div>
 
       {/* Review Submission Form */}
-      {currentUser ? <form
+      <form
         onSubmit={handleSubmitReview}
         className="glass-panel"
         style={{ padding: "1.5rem", marginBottom: "2.5rem" }}
@@ -149,7 +145,21 @@ export const ReviewsSection = ({ productId, productName }) => {
             gap: "0.5rem"
           }}>
             <CheckCircle size={16} />
-            <span>Thank you! Your fragrance review has been published live to the boutique.</span>
+              <span>Thank you. Your review was submitted for moderation.</span>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor={`reviewer-name-${productId}`}>Your name *</label>
+                    <input
+                      id={`reviewer-name-${productId}`}
+                      type="text"
+                      className="form-input"
+                      autoComplete="name"
+                      maxLength={80}
+                      required
+                      value={reviewerName}
+                      onChange={event => setReviewerName(event.target.value)}
+                    />
+                  </div>
+
           </div>
         )}
 
@@ -215,7 +225,7 @@ export const ReviewsSection = ({ productId, productName }) => {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.78rem", color: "#a1a1aa" }}>
             <CheckCircle size={14} color="#10b981" />
-            <span>Posting as: <strong style={{ color: "#fff" }}>{currentUser?.displayName || "Patron"}</strong> (Verified Buyer)</span>
+            <span>Guest reviews are moderated before publication.</span>
           </div>
 
           <button
@@ -228,11 +238,7 @@ export const ReviewsSection = ({ productId, productName }) => {
             <span>{isSubmitting ? "Publishing..." : "Submit Live Review"}</span>
           </button>
         </div>
-      </form> : (
-        <div className="glass-panel" style={{ padding: "1.5rem", marginBottom: "2.5rem", color: "#a1a1aa", fontSize: "0.88rem" }}>
-          <Link to="/signin" style={{ color: "var(--gold-400)" }}>Sign in</Link> to leave a review.
-        </div>
-      )}
+      </form>
 
       {/* Live Reviews Feed */}
       <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>

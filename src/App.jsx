@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { 
   StoreProvider, 
   useStore 
@@ -18,9 +18,8 @@ import { ProductDetailModal } from "./components/ProductDetailModal";
 import { CartDrawer } from "./components/CartDrawer";
 import { CheckoutModal } from "./components/CheckoutModal";
 import { OrderSuccessModal } from "./components/OrderSuccessModal";
-import { OrderHistoryModal } from "./components/OrderHistoryModal";
 import { AdminLayout } from "./components/admin/AdminLayout";
-import { AdminLoginPage, ProfilePage, RegisterPage, SignInPage, VerifyPage } from "./components/auth/AuthPages";
+import { AdminLoginPage } from "./components/auth/AdminLoginPage";
 import { 
   SlidersHorizontal, 
   Sparkles, 
@@ -34,9 +33,6 @@ import {
 
 const MainStorefront = () => {
   const { products, settings } = useStore();
-  const { currentUser } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,22 +44,6 @@ const MainStorefront = () => {
   // Modal states
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [placedOrder, setPlacedOrder] = useState(null);
-  const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
-
-  const handleOpenOrderHistory = () => {
-    if (currentUser) {
-      setIsOrderHistoryOpen(true);
-      return;
-    }
-    navigate("/signin", { state: { from: { pathname: "/", search: "?orders=1" } } });
-  };
-
-  useEffect(() => {
-    if (new URLSearchParams(location.search).get("orders") !== "1") return;
-    setIsOrderHistoryOpen(true);
-    navigate("/", { replace: true });
-  }, [location.search, navigate]);
-
   // Filtering & Sorting
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
@@ -128,7 +108,6 @@ const MainStorefront = () => {
         setSearchTerm={setSearchTerm}
         selectedFamily={selectedFamily}
         setSelectedFamily={setSelectedFamily}
-        onOpenOrderHistory={handleOpenOrderHistory}
       />
 
       {/* Hero Visual Showcase */}
@@ -313,12 +292,7 @@ const MainStorefront = () => {
                 Boutique Services
               </h5>
               <ul style={{ listStyle: "none", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <li style={{ cursor: "pointer", color: "#d4d4d8" }} onClick={() => setIsOrderHistoryOpen(true)}>
-                  Track Your Order
-                </li>
-                <li style={{ cursor: "pointer", color: "#d4d4d8" }} onClick={() => navigate("/profile")}>
-                  My Profile
-                </li>
+                <li>Order updates are sent by email when provided.</li>
               </ul>
             </div>
 
@@ -343,9 +317,6 @@ const MainStorefront = () => {
             fontSize: "0.78rem"
           }}>
             <span>© {new Date().getFullYear()} AURA PARFUMS. All rights reserved.</span>
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <span style={{ cursor: "pointer" }} onClick={handleOpenOrderHistory}>Live Order Tracking</span>
-            </div>
           </div>
         </div>
       </footer>
@@ -370,34 +341,24 @@ const MainStorefront = () => {
         <OrderSuccessModal
           order={placedOrder}
           onClose={() => setPlacedOrder(null)}
-          onOpenTracker={() => setIsOrderHistoryOpen(true)}
         />
       )}
-
-      <OrderHistoryModal
-        isOpen={isOrderHistoryOpen}
-        onClose={() => setIsOrderHistoryOpen(false)}
-      />
 
     </div>
   );
 };
 
-const RequireAuth = () => {
-  const { currentUser, authLoading } = useAuth();
-  const location = useLocation();
-  if (authLoading) return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", color: "#a1a1aa" }}>Loading...</div>;
-  if (!currentUser) return <Navigate to="/signin" replace state={{ from: location }} />;
-  return <Outlet />;
-};
-
 const RequireAdmin = () => {
-  const { currentUser, verifyCurrentAdmin } = useAuth();
+  const { currentAdmin, authLoading, verifyCurrentAdmin } = useAuth();
   const [access, setAccess] = useState("checking");
 
   useEffect(() => {
     let active = true;
-    if (!currentUser) {
+    if (authLoading) {
+      setAccess("checking");
+      return () => { active = false; };
+    }
+    if (!currentAdmin) {
       setAccess("denied");
       return () => { active = false; };
     }
@@ -405,7 +366,7 @@ const RequireAdmin = () => {
       if (active) setAccess(isAllowed ? "allowed" : "denied");
     });
     return () => { active = false; };
-  }, [currentUser, verifyCurrentAdmin]);
+  }, [authLoading, currentAdmin]);
 
   if (access === "checking") return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", color: "#a1a1aa" }}>Loading...</div>;
   if (access !== "allowed") return <Navigate to="/" replace />;
@@ -414,16 +375,10 @@ const RequireAdmin = () => {
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/signin" element={<SignInPage />} />
-    <Route path="/register" element={<RegisterPage />} />
-    <Route path="/verify" element={<VerifyPage />} />
     <Route path="/admin-login" element={<AdminLoginPage />} />
     <Route path="/" element={<MainStorefront />} />
-    <Route element={<RequireAuth />}>
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route element={<RequireAdmin />}>
-        <Route path="/admin" element={<AdminLayout />} />
-      </Route>
+    <Route element={<RequireAdmin />}>
+      <Route path="/admin" element={<AdminLayout />} />
     </Route>
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>

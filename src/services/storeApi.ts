@@ -81,9 +81,20 @@ export async function updateStock(productId: string, variationId: string, stock:
 
 export async function placeOrder(order: Order): Promise<Order> {
   const client = requireSupabase();
-  const { data, error } = await client.rpc("place_order_atomic", { p_order_data: order });
+  const { data, error } = await client.rpc("place_guest_order", { p_order_data: order });
   throwIfError(error);
-  return data as Order;
+  const { emailConfirmationToken, ...savedOrder } = data as Order & { emailConfirmationToken?: string };
+  if (emailConfirmationToken && savedOrder.customer.email) {
+    try {
+      const { error: emailError } = await client.functions.invoke("send-order-confirmation", {
+        body: { orderId: savedOrder.id, token: emailConfirmationToken }
+      });
+      if (emailError) console.error("Order confirmation email failed", emailError);
+    } catch (emailError) {
+      console.error("Order confirmation email failed", emailError);
+    }
+  }
+  return savedOrder;
 }
 
 export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
@@ -94,7 +105,7 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
 
 export async function addReview(review: Review): Promise<Review> {
   const client = requireSupabase();
-  const { data, error } = await client.rpc("submit_review", { p_review_data: review });
+  const { data, error } = await client.rpc("submit_guest_review", { p_review_data: review });
   throwIfError(error);
   return data as Review;
 }

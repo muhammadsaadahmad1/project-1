@@ -23,13 +23,16 @@ port = 54323
 enabled = true
 site_url = "http://localhost:5173"
 additional_redirect_urls = ["http://127.0.0.1:5173"]
-enable_signup = true
+enable_signup = false
 
 [auth.email]
 enable_confirmations = true
 max_frequency = "30s"
 otp_length = 6
 secure_password_change = true
+
+[functions.send-order-confirmation]
+verify_jwt = false
 
 [auth.mfa.totp]
 enroll_enabled = true

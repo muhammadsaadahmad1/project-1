@@ -1,22 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import {
-  fetchUserProfile,
-  registerUser as registerSupabaseUser,
+  fetchAdminProfile,
   signInAdmin,
-  signInUser,
-  signOutUser,
-  verifyCurrentAdmin,
-  resendVerificationCode,
-  requestContactVerification,
-  verifyAuthOtp,
-  updateUserProfile as updateSupabaseUserProfile
+  signOutAdmin,
+  verifyCurrentAdmin
 } from "../services/authApi";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentAdmin, setCurrentAdmin] = useState(null);
   const [authLoading, setAuthLoading] = useState(isSupabaseConfigured);
 
   useEffect(() => {
@@ -28,18 +22,20 @@ export const AuthProvider = ({ children }) => {
       const currentRequest = ++requestId;
       if (!session?.user) {
         if (active && currentRequest === requestId) {
-          setCurrentUser(null);
+          setCurrentAdmin(null);
           setAuthLoading(false);
         }
         return;
       }
       try {
-        const profile = await fetchUserProfile(session.user.id);
-        if (active && currentRequest === requestId) setCurrentUser(profile);
+        const profile = await fetchAdminProfile(session.user.id);
+        if (active && currentRequest === requestId) {
+          setCurrentAdmin(profile.role === "admin" ? profile : null);
+        }
       } catch (error) {
         if (active && currentRequest === requestId) {
-          setCurrentUser(null);
-          console.error("Failed to load user profile", error);
+          setCurrentAdmin(null);
+          console.error("Failed to load admin profile", error);
         }
       } finally {
         if (active && currentRequest === requestId) setAuthLoading(false);
@@ -60,72 +56,26 @@ export const AuthProvider = ({ children }) => {
   const loginAdmin = async (identifier, password) => {
     try {
       const profile = await signInAdmin(identifier, password);
-      setCurrentUser(profile);
+      setCurrentAdmin(profile);
       return { success: true };
     } catch (error) {
       return { success: false, message: "Invalid credentials or access denied." };
     }
   };
 
-  const loginUser = async (identifier, password) => {
-    try {
-      const profile = await signInUser(identifier, password);
-      setCurrentUser(profile);
-      return { success: true };
-    } catch (error) {
-      return { success: false, message: "Unable to sign in. Check your details and try again." };
-    }
-  };
-
-  const registerUser = async ({ email, password }) => {
-    try {
-      const registration = await registerSupabaseUser(email, password);
-      if (registration.profile) setCurrentUser(registration.profile);
-      return { success: true, confirmationRequired: registration.confirmationRequired };
-    } catch (error) {
-      const message = error.message || "Unable to create your account.";
-      return {
-        success: false,
-        message: /email address not authorized/i.test(message)
-          ? "Email delivery is limited to project-team addresses. Configure custom SMTP in Supabase to send codes to customers."
-          : message
-      };
-    }
-  };
-
-  const updateUserProfile = async (profileData) => {
-    if (!currentUser) return;
-    const updatedProfile = {
-      ...currentUser,
-      displayName: profileData.displayName ?? currentUser.displayName,
-      address: profileData.address ?? currentUser.address
-    };
-    setCurrentUser(updatedProfile);
-    await updateSupabaseUserProfile(currentUser.id, {
-      displayName: updatedProfile.displayName,
-      address: updatedProfile.address
-    });
-  };
-
-  const logoutUser = async () => {
-    await signOutUser();
-    setCurrentUser(null);
+  const logoutAdmin = async () => {
+    await signOutAdmin();
+    setCurrentAdmin(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        currentUser,
+        currentAdmin,
         authLoading,
         loginAdmin,
-        loginUser,
-        registerUser,
         verifyCurrentAdmin,
-        logoutUser,
-        updateUserProfile,
-        requestContactVerification,
-        resendVerificationCode,
-        verifyAuthOtp
+        logoutAdmin
       }}
     >
       {children}

@@ -25,7 +25,7 @@ import { SupabaseSettingsModal } from "./SupabaseSettingsModal";
 
 export const AdminLayout = () => {
   const { products, orders, reviews, lowStockAlerts, isSupabaseActive } = useStore();
-  const { logoutUser } = useAuth();
+  const { logoutAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("orders"); // orders | inventory | products | reviews | settings
@@ -136,7 +136,7 @@ export const AdminLayout = () => {
         {/* Right Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <button 
-            onClick={() => { void logoutUser().then(() => navigate("/signin", { replace: true })); }}
+            onClick={() => { void logoutAdmin().then(() => navigate("/admin-login", { replace: true })); }}
             style={{
               background: "none",
               border: "1px solid rgba(255, 255, 255, 0.12)",
