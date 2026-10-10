@@ -28,8 +28,65 @@ import {
   ArrowUpDown, 
   ShieldCheck, 
   HelpCircle, 
-  ExternalLink 
+  ExternalLink,
+  ShoppingBag
 } from "lucide-react";
+import { useCart } from "./context/CartContext";
+
+const FloatingCartButton = () => {
+  const { totalItemsCount, setIsCartOpen, subtotal } = useCart();
+
+  return (
+    <button
+      onClick={() => setIsCartOpen(true)}
+      style={{
+        position: "fixed",
+        right: "1.25rem",
+        bottom: "1.25rem",
+        zIndex: 1300,
+        background: "linear-gradient(135deg, #222227 0%, #151518 100%)",
+        border: "1px solid rgba(212, 175, 55, 0.6)",
+        color: "#fff",
+        padding: "0.65rem 1rem",
+        borderRadius: "999px",
+        display: "flex",
+        alignItems: "center",
+        gap: "0.6rem",
+        cursor: "pointer",
+        boxShadow: "0 14px 30px rgba(0, 0, 0, 0.55)",
+        transition: "all 0.2s",
+        backdropFilter: "blur(10px)"
+      }}
+    >
+      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+        <ShoppingBag size={17} color="#fde293" />
+        {totalItemsCount > 0 && (
+          <span style={{
+            position: "absolute",
+            top: "-8px",
+            right: "-10px",
+            background: "var(--gold-500)",
+            color: "#000",
+            fontSize: "0.68rem",
+            fontWeight: 700,
+            width: "18px",
+            height: "18px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "2px solid #111"
+          }}>
+            {totalItemsCount}
+          </span>
+        )}
+      </div>
+      <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--gold-300)" }}>
+        ${subtotal}
+      </span>
+    </button>
+  );
+};
 
 const MainStorefront = () => {
   const { products, settings } = useStore();
@@ -109,6 +166,8 @@ const MainStorefront = () => {
         selectedFamily={selectedFamily}
         setSelectedFamily={setSelectedFamily}
       />
+
+      <FloatingCartButton />
 
       {/* Hero Visual Showcase */}
       <HeroBanner onExploreClick={handleExploreScroll} />

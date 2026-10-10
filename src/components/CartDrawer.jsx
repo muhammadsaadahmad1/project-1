@@ -29,19 +29,24 @@ export const CartDrawer = () => {
   if (!isCartOpen) return null;
 
   return (
-    <div className="modal-backdrop" onClick={() => setIsCartOpen(false)} style={{ justifyContent: "flex-end", padding: 0 }}>
+    <div className="modal-backdrop" onClick={() => setIsCartOpen(false)} style={{ justifyContent: "flex-end", alignItems: "flex-end", padding: "1.25rem", background: "rgba(0, 0, 0, 0.2)" }}>
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
+          position: "fixed",
+          right: "1.25rem",
+          bottom: "1.25rem",
           width: "100%",
-          maxWidth: "480px",
-          height: "100vh",
+          maxWidth: "420px",
+          height: "min(78vh, 760px)",
           background: "var(--bg-surface)",
-          borderLeft: "1px solid var(--border-gold)",
+          border: "1px solid var(--border-gold)",
+          borderRadius: "22px",
           display: "flex",
           flexDirection: "column",
-          boxShadow: "-10px 0 30px rgba(0, 0, 0, 0.8)",
-          animation: "slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
+          boxShadow: "0 22px 45px rgba(0, 0, 0, 0.75)",
+          overflow: "hidden",
+          animation: "slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
         }}
       >
         {/* Header */}
@@ -277,9 +282,15 @@ export const CartDrawer = () => {
       </div>
 
       <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(18px) scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
       `}</style>
     </div>

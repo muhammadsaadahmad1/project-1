@@ -116,71 +116,7 @@ export const HeroBanner = ({ onExploreClick }) => {
           </button>
         </div>
 
-        {/* Trust & Craftsmanship Bar */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "1.25rem",
-          maxWidth: "1000px",
-          margin: "0 auto"
-        }}>
-          <div className="glass-panel" style={{ padding: "1.2rem", textAlign: "left", display: "flex", gap: "1rem", alignItems: "center" }}>
-            <div style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "8px",
-              background: "rgba(212, 175, 55, 0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <Compass size={20} color="#d4af37" />
-            </div>
-            <div>
-              <h4 style={{ fontSize: "0.95rem", color: "#fff", marginBottom: "0.2rem", fontWeight: 600 }}>Multi-Size Variations</h4>
-              <p style={{ fontSize: "0.8rem", color: "#a1a1aa" }}>30ml travel, 50ml flacon, & 100ml prestige decanters</p>
-            </div>
-          </div>
 
-          <div className="glass-panel" style={{ padding: "1.2rem", textAlign: "left", display: "flex", gap: "1rem", alignItems: "center" }}>
-            <div style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "8px",
-              background: "rgba(212, 175, 55, 0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <Shield size={20} color="#d4af37" />
-            </div>
-            <div>
-              <h4 style={{ fontSize: "0.95rem", color: "#fff", marginBottom: "0.2rem", fontWeight: 600 }}>Live Inventory Tracking</h4>
-              <p style={{ fontSize: "0.8rem", color: "#a1a1aa" }}>Inventory updates powered by Supabase</p>
-            </div>
-          </div>
-
-          <div className="glass-panel" style={{ padding: "1.2rem", textAlign: "left", display: "flex", gap: "1rem", alignItems: "center" }}>
-            <div style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "8px",
-              background: "rgba(212, 175, 55, 0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0
-            }}>
-              <MessageCircle size={20} color="#25d366" />
-            </div>
-            <div>
-              <h4 style={{ fontSize: "0.95rem", color: "#fff", marginBottom: "0.2rem", fontWeight: 600 }}>WhatsApp Concierge</h4>
-              <p style={{ fontSize: "0.8rem", color: "#a1a1aa" }}>Direct mobile orders & instant status notifications</p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
