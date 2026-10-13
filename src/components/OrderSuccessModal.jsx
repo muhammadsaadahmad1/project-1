@@ -18,7 +18,7 @@ export const OrderSuccessModal = ({ order, onClose }) => {
   if (!order) return null;
 
   const adminPhone = settings?.adminWhatsappNumber || "+923159146234";
-  const whatsappMessage = formatWhatsAppOrderMessage(order, "AURA PARFUMS");
+  const whatsappMessage = formatWhatsAppOrderMessage(order, "AURA PARFUMES");
   const whatsappLink = generateWhatsAppLink(adminPhone, whatsappMessage);
 
   const handleCopy = () => {

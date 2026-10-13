@@ -53,7 +53,7 @@ export const OrderManager = () => {
   };
 
   const openAdminWhatsAppReceipt = (order) => {
-    const msg = formatWhatsAppOrderMessage(order, "AURA PARFUMS");
+    const msg = formatWhatsAppOrderMessage(order, "AURA PARFUMES");
     const link = generateWhatsAppLink(settings?.adminWhatsappNumber || "+923159146234", msg);
     window.open(link, "_blank");
   };

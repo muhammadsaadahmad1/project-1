@@ -4,47 +4,41 @@
    ========================================================================== */
 
 :root {
-  /* Obsidian Color Palette */
-  --bg-primary: #09090b;
-  --bg-surface: #111114;
-  --bg-surface-elevated: #18181d;
-  --bg-glass: rgba(17, 17, 20, 0.75);
-  --bg-glass-heavy: rgba(10, 10, 12, 0.88);
+  /* Warm, minimal boutique colors inspired by the reference storefront */
+  --bg-primary: #f6efe7;
+  --bg-surface: #fbf7f2;
+  --bg-surface-elevated: #f0e5d7;
+  --bg-glass: rgba(255, 255, 255, 0.74);
+  --bg-glass-heavy: rgba(255, 250, 245, 0.9);
 
-  /* Haute Imperial Gold Accents */
-  --gold-300: #fef0c7;
-  --gold-400: #fde293;
-  --gold-500: #d4af37;
-  --gold-600: #b89224;
-  --gold-700: #937118;
-  --gold-glow: rgba(212, 175, 55, 0.25);
-  --gold-gradient: linear-gradient(135deg, #fef0c7 0%, #d4af37 50%, #937118 100%);
-  --gold-gradient-subtle: linear-gradient(135deg, rgba(254, 240, 199, 0.12) 0%, rgba(212, 175, 55, 0.06) 100%);
+  --gold-300: #e8c79a;
+  --gold-400: #d6a874;
+  --gold-500: #b76b2d;
+  --gold-600: #995a2b;
+  --gold-700: #6c3d1c;
+  --gold-glow: rgba(183, 107, 45, 0.18);
+  --gold-gradient: linear-gradient(135deg, #f2d7b3 0%, #c98a4b 52%, #8d5526 100%);
+  --gold-gradient-subtle: linear-gradient(135deg, rgba(242, 215, 179, 0.16) 0%, rgba(183, 107, 45, 0.08) 100%);
 
-  /* Status Colors */
-  --status-in-stock: #10b981;
-  --status-low-stock: #f59e0b;
-  --status-out-of-stock: #ef4444;
-  --status-info: #3b82f6;
+  --status-in-stock: #15803d;
+  --status-low-stock: #d97706;
+  --status-out-of-stock: #b91c1c;
+  --status-info: #2563eb;
 
-  /* Typography */
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Borders & Shadows */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-gold: rgba(212, 175, 55, 0.25);
-  --border-gold-strong: rgba(212, 175, 55, 0.6);
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-gold: 0 8px 30px rgba(212, 175, 55, 0.15);
-  --shadow-deep: 0 20px 40px -15px rgba(0, 0, 0, 0.85);
+  --border-subtle: rgba(82, 51, 36, 0.12);
+  --border-gold: rgba(121, 74, 35, 0.28);
+  --border-gold-strong: rgba(121, 74, 35, 0.52);
+  --shadow-sm: 0 8px 20px rgba(74, 47, 29, 0.08);
+  --shadow-gold: 0 12px 30px rgba(157, 101, 55, 0.14);
+  --shadow-deep: 0 20px 40px -18px rgba(40, 25, 16, 0.28);
 
-  /* Transitions */
   --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Reset & Base Setup */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -53,20 +47,20 @@
 
 html {
   scroll-behavior: smooth;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-primary);
-  color: #f1f1f3;
+  color: #1f1b17;
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 100% 60%, rgba(184, 146, 36, 0.03) 0%, transparent 40%);
+  background-image:
+    radial-gradient(circle at top, rgba(183, 107, 45, 0.08) 0%, transparent 38%),
+    linear-gradient(180deg, #f9f4ee 0%, #f6efe7 100%);
   background-attachment: fixed;
 }
 

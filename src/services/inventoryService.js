@@ -1,4 +1,4 @@
-// Real-time Inventory System Service for AURA PARFUMS
+// Real-time Inventory System Service for AURA PARFUMES
 
 /**
  * Get stock status and human-readable label based on quantity and threshold

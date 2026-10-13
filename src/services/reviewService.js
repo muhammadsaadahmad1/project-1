@@ -1,4 +1,4 @@
-// Real-time Reviews and Rating Service for AURA PARFUMS
+// Real-time Reviews and Rating Service for AURA PARFUMES
 
 /**
  * Calculates updated average rating and count for a product from its approved reviews

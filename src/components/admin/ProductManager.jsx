@@ -24,8 +24,13 @@ export const ProductManager = () => {
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("Aura Atelier");
   const [subtitle, setSubtitle] = useState("Extrait de Parfum • Reserve Edition");
+  const [productType, setProductType] = useState("fragrance");
   const [gender, setGender] = useState("Unisex");
   const [fragranceFamily, setFragranceFamily] = useState("Woody Oriental");
+  const [isNew, setIsNew] = useState(false);
+  const [isSignature, setIsSignature] = useState(false);
+  const [isBestseller, setIsBestseller] = useState(false);
+  const [isTrending, setIsTrending] = useState(false);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
   const [topNotes, setTopNotes] = useState("");
@@ -43,8 +48,13 @@ export const ProductManager = () => {
     setName("");
     setBrand("Aura Atelier");
     setSubtitle("Extrait de Parfum • Reserve Edition");
+    setProductType("fragrance");
     setGender("Unisex");
     setFragranceFamily("Woody Oriental");
+    setIsNew(false);
+    setIsSignature(false);
+    setIsBestseller(false);
+    setIsTrending(false);
     setDescription("");
     setImage("https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=900&q=80");
     setTopNotes("Bergamot, Cardamom, Pink Pepper");
@@ -62,8 +72,13 @@ export const ProductManager = () => {
     setName(prod.name);
     setBrand(prod.brand);
     setSubtitle(prod.subtitle || "");
+    setProductType(prod.productType || "fragrance");
     setGender(prod.gender || "Unisex");
     setFragranceFamily(prod.fragranceFamily || "Woody Oriental");
+    setIsNew(Boolean(prod.isNew));
+    setIsSignature(Boolean(prod.isSignature ?? prod.isFeatured));
+    setIsBestseller(Boolean(prod.isBestseller));
+    setIsTrending(Boolean(prod.isTrending));
     setDescription(prod.description || "");
     setImage(prod.image || "");
     setTopNotes(prod.notes?.top?.join(", ") || "");
@@ -113,8 +128,14 @@ export const ProductManager = () => {
       name: name.trim(),
       brand: brand.trim(),
       subtitle: subtitle.trim(),
+      productType,
       gender,
       fragranceFamily,
+      isNew,
+      isSignature,
+      isFeatured: isSignature,
+      isBestseller,
+      isTrending,
       description: description.trim(),
       image: image.trim() || "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=900&q=80",
       notes: {
@@ -303,7 +324,7 @@ export const ProductManager = () => {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
               <h3 style={{ fontSize: "1.5rem", color: "#fff", margin: 0 }}>
-                {editingProduct ? `Edit Creation: ${editingProduct.name}` : "Formulate New Fragrance Flacon"}
+                {editingProduct ? `Edit Product: ${editingProduct.name}` : "Add New Product"}
               </h3>
               <button className="btn-icon" onClick={() => setIsModalOpen(false)}>
                 <X size={18} />
@@ -337,9 +358,19 @@ export const ProductManager = () => {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1.2rem", marginBottom: "1.2rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "1.2rem", marginBottom: "1.2rem" }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Concentration Subtitle</label>
+                  <label className="form-label">Product Department</label>
+                  <select className="form-select" value={productType} onChange={(e) => setProductType(e.target.value)}>
+                    <option value="fragrance">Fragrance</option>
+                    <option value="deodorant">Deodorant</option>
+                    <option value="body-mist">Body Mist</option>
+                    <option value="gift-set">Gift Set</option>
+                  </select>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Product Subtitle</label>
                   <input
                     type="text"
                     className="form-input"
@@ -378,6 +409,21 @@ export const ProductManager = () => {
                   </select>
                 </div>
               </div>
+
+              <fieldset style={{ display: "flex", flexWrap: "wrap", gap: "1rem 1.5rem", border: "1px solid var(--border-gold)", borderRadius: "6px", padding: "0.8rem 1rem", marginBottom: "1.2rem" }}>
+                <legend className="form-label" style={{ padding: "0 0.35rem" }}>Homepage Collections</legend>
+                {[
+                  ["New Drop", isNew, setIsNew],
+                  ["The Aura's", isSignature, setIsSignature],
+                  ["Best Seller", isBestseller, setIsBestseller],
+                  ["Trending", isTrending, setIsTrending]
+                ].map(([label, checked, setChecked]) => (
+                  <label key={label} style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", color: "#e4d4c1", fontSize: "0.82rem" }}>
+                    <input type="checkbox" checked={checked} onChange={(event) => setChecked(event.target.checked)} />
+                    {label}
+                  </label>
+                ))}
+              </fieldset>
 
               <div className="form-group">
                 <label className="form-label">Olfactory Story & Description *</label>

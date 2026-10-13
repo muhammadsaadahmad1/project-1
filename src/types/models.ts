@@ -13,11 +13,15 @@ export interface Product {
   subtitle: string;
   gender: string;
   fragranceFamily: string;
+  productType?: "fragrance" | "deodorant" | "body-mist" | "gift-set";
   description: string;
   image: string;
   bannerImage?: string;
   isFeatured: boolean;
   isNew: boolean;
+  isSignature?: boolean;
+  isBestseller?: boolean;
+  isTrending?: boolean;
   notes: {
     top: string[];
     heart: string[];

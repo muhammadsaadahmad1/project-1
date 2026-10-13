@@ -28,8 +28,8 @@ export const AdminLoginPage = () => {
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "2rem 1rem", background: "radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.1), transparent 55%), var(--bg-primary)" }}>
       <section className="animate-fade-in" style={{ width: "min(100%, 440px)", background: "rgba(17, 17, 20, 0.94)", border: "1px solid var(--border-gold)", borderRadius: "8px", padding: "2rem", boxShadow: "var(--shadow-deep)" }}>
-        <Link to="/" aria-label="AURA PARFUMS home" style={{ color: "inherit", textDecoration: "none" }}>
-          <div style={{ color: "var(--gold-400)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: "0.45rem" }}>AURA PARFUMS ADMIN</div>
+        <Link to="/" aria-label="AURA PARFUMES home" style={{ color: "inherit", textDecoration: "none" }}>
+          <div style={{ color: "var(--gold-400)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: "0.45rem" }}>AURA PARFUMES ADMIN</div>
         </Link>
         <h1 style={{ color: "#fff", fontSize: "2rem", marginBottom: "1.35rem" }}>Admin sign in</h1>
         {error && <div role="alert" style={{ marginBottom: "1rem", padding: "0.7rem 0.85rem", color: "#fca5a5", background: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: "6px", fontSize: "0.84rem" }}>{error}</div>}

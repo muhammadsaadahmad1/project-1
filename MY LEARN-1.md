@@ -1,5 +1,5 @@
 # MY LEARN-1: Project Blueprint & Technical Development Journal
-**Project:** AURA PARFUMS (Haute Parfumerie Luxury E-Commerce Platform)  
+**Project:** AURA PARFUMES (Haute Parfumerie Luxury E-Commerce Platform)
 **Initial Milestone Date:** September 2026  
 **Document Purpose:** Living technical log, architecture reference, and developmental milestone tracker for the fragrance e-commerce web platform. This document will be continuously updated as new features, backend connections, and enhancements are introduced.
 
@@ -7,7 +7,7 @@
 
 ## 1. Project Vision & Brand Aesthetic
 
-**AURA PARFUMS** is an ultra-premium fragrance e-commerce platform designed with the visual gravitas of a Parisian *Haute Parfumerie*. 
+**AURA PARFUMES** is an ultra-premium fragrance e-commerce platform designed with the visual gravitas of a Parisian *Haute Parfumerie*.
 
 ### Design Identity
 - **Obsidian Dark Luxury Theme**: Deep midnight tones (`#09090B`, `#111114`, `#18181D`) providing contrast against fragrance flacons.

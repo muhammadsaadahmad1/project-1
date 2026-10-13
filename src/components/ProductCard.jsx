@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Star, ShoppingBag, Eye, Sparkles } from "lucide-react";
+import { Star, ShoppingBag, Eye, Heart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { getStockStatus } from "../services/inventoryService";
 import { useStore } from "../context/StoreContext";
 
-export const ProductCard = ({ product, onSelectProduct }) => {
+export const ProductCard = ({ product, onSelectProduct, isWishlisted = false, onToggleWishlist }) => {
   const { addToCart } = useCart();
   const { settings } = useStore();
 
@@ -15,6 +15,8 @@ export const ProductCard = ({ product, onSelectProduct }) => {
   const variations = product.variations || [];
   const currentVariation = variations[selectedVariationIndex] || { size: "50ml", price: 150, stock: 0 };
   const stockInfo = getStockStatus(currentVariation.stock, settings?.lowStockThreshold || 5);
+  const productType = product.productType || "fragrance";
+  const productTypeLabels = { deodorant: "Deodorant", "body-mist": "Body Mist", "gift-set": "Gift Set" };
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -83,12 +85,21 @@ export const ProductCard = ({ product, onSelectProduct }) => {
             color: "var(--gold-300)",
             border: "1px solid rgba(212, 175, 55, 0.3)"
           }}>
-            {product.fragranceFamily}
+            {productType === "fragrance" ? product.fragranceFamily : productTypeLabels[productType] || "Product"}
           </span>
 
           <span className={`badge-stock ${stockInfo.badgeClass}`}>
             {stockInfo.label}
           </span>
+          <button
+            type="button"
+            aria-label={`${isWishlisted ? "Remove from" : "Add to"} wishlist: ${product.name}`}
+            aria-pressed={isWishlisted}
+            onClick={(event) => { event.stopPropagation(); onToggleWishlist?.(product.id); }}
+            style={{ width: "32px", height: "32px", flexShrink: 0, display: "grid", placeItems: "center", borderRadius: "50%", border: "1px solid rgba(212,175,55,0.45)", background: "rgba(9,9,11,0.82)", color: isWishlisted ? "#ef8b87" : "#f4e8d6", cursor: "pointer" }}
+          >
+            <Heart size={15} fill={isWishlisted ? "currentColor" : "none"} />
+          </button>
         </div>
 
         {/* Quick View Pill on Hover */}
@@ -179,7 +190,7 @@ export const ProductCard = ({ product, onSelectProduct }) => {
           <div style={{ marginBottom: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
               <span style={{ fontSize: "0.7rem", textTransform: "uppercase", color: "#71717a", letterSpacing: "0.06em" }}>
-                Select Flacon Volume:
+                {productType === "fragrance" ? "Select Flacon Volume:" : "Select Size:"}
               </span>
               <span style={{ fontSize: "0.72rem", color: currentVariation.stock <= 5 && currentVariation.stock > 0 ? "var(--gold-400)" : "#a1a1aa" }}>
                 Stock: {currentVariation.stock} left

@@ -73,7 +73,7 @@ export const AdminLayout = () => {
 
           <div>
             <h2 style={{ fontSize: "1.2rem", color: "#fff", margin: 0, lineHeight: 1.1 }}>
-              AURA PARFUMS Command Portal
+              AURA PARFUMES Command Portal
             </h2>
             <span style={{ fontSize: "0.72rem", color: "#71717a" }}>
               Backend: {isSupabaseActive ? <strong style={{ color: "#34d399" }}>Supabase Configured</strong> : <span style={{ color: "var(--gold-300)" }}>Local Demo Mode</span>}

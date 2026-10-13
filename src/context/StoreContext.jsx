@@ -22,6 +22,32 @@ import {
   updateStock as updateSupabaseStock
 } from "../services/storeApi";
 
+const syncDemoCatalogMetadata = (catalog) => {
+  if (!catalog.length) return INITIAL_PRODUCTS;
+
+  const demoById = new Map(INITIAL_PRODUCTS.map(product => [product.id, product]));
+  const containsKnownDemo = catalog.some(product => demoById.has(product.id));
+  if (!containsKnownDemo) return catalog;
+
+  const catalogIds = new Set(catalog.map(product => product.id));
+  const refreshedCatalog = catalog.map(product => {
+    const demo = demoById.get(product.id);
+    if (!demo) return product;
+    return {
+      ...product,
+      productType: product.productType || demo.productType,
+      isSignature: product.isSignature ?? demo.isSignature,
+      isBestseller: product.isBestseller ?? demo.isBestseller,
+      isTrending: product.isTrending ?? demo.isTrending
+    };
+  });
+  const missingDepartmentDemos = INITIAL_PRODUCTS.filter(product =>
+    product.productType !== "fragrance" && !catalogIds.has(product.id)
+  );
+
+  return [...refreshedCatalog, ...missingDepartmentDemos];
+};
+
 const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
@@ -31,7 +57,8 @@ export const StoreProvider = ({ children }) => {
   const [products, setProducts] = useState(() => {
     if (isSupabaseConfigured) return INITIAL_PRODUCTS;
     const saved = localStorage.getItem("aura_products");
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    const savedProducts = saved ? JSON.parse(saved) : [];
+    return syncDemoCatalogMetadata(savedProducts);
   });
 
   const [reviews, setReviews] = useState(() => {
@@ -99,7 +126,10 @@ export const StoreProvider = ({ children }) => {
     if (!isAdmin) setOrders([]);
     const refresh = async (table) => {
       try {
-        if (table === "products") setProducts(await fetchProducts());
+        if (table === "products") {
+          const remoteProducts = await fetchProducts();
+          setProducts(syncDemoCatalogMetadata(remoteProducts));
+        }
         if (table === "reviews") setReviews(await fetchReviews());
         if (table === "orders" && isAdmin) setOrders(await fetchOrders());
       } catch (error) {
@@ -115,7 +145,7 @@ export const StoreProvider = ({ children }) => {
     ])
       .then(([remoteProducts, remoteReviews, remoteOrders, remoteSettings]) => {
         if (!active) return;
-        setProducts(remoteProducts);
+        setProducts(syncDemoCatalogMetadata(remoteProducts));
         if (remoteReviews.length) setReviews(remoteReviews);
         setOrders(remoteOrders);
         if (remoteSettings) {

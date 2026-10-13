@@ -1,5 +1,5 @@
-// Initial luxury fragrance catalog for AURA PARFUMS
-export const INITIAL_PRODUCTS = [
+// Initial luxury fragrance catalog for AURA PARFUMES
+const DEMO_FRAGRANCES = [
   {
     id: "frag-001",
     name: "Oud Royale Nocturne",
@@ -12,19 +12,9 @@ export const INITIAL_PRODUCTS = [
     bannerImage: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=1400&q=80",
     isFeatured: true,
     isNew: true,
-    notes: {
-      top: ["Saffron", "Bitter Almond", "Bergamot"],
-      heart: ["Amberwood", "Jasmine Grandiflorum", "Cedar"],
-      base: ["Cambodian Oud", "Bourbon Vanilla", "Tonka Bean", "Cashmeran"]
-    },
-    variations: [
-      { id: "v-001-50", size: "50ml", price: 175, stock: 18, sku: "ORN-50ML" },
-      { id: "v-001-100", size: "100ml", price: 265, stock: 4, sku: "ORN-100ML" } // Low stock demonstration (<5)
-    ],
-    rating: {
-      average: 4.9,
-      count: 28
-    },
+    notes: { top: ["Saffron", "Bitter Almond", "Bergamot"], heart: ["Amberwood", "Jasmine Grandiflorum", "Cedar"], base: ["Cambodian Oud", "Bourbon Vanilla", "Tonka Bean", "Cashmeran"] },
+    variations: [{ id: "v-001-50", size: "50ml", price: 175, stock: 18, sku: "ORN-50ML" }, { id: "v-001-100", size: "100ml", price: 265, stock: 4, sku: "ORN-100ML" }],
+    rating: { average: 4.9, count: 28 },
     createdAt: "2026-09-01T10:00:00.000Z"
   },
   {
@@ -38,19 +28,9 @@ export const INITIAL_PRODUCTS = [
     image: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=900&q=80",
     isFeatured: true,
     isNew: false,
-    notes: {
-      top: ["Pink Pepper", "Italian Mandarin", "Lychee"],
-      heart: ["Taif Rose Absolute", "Damask Peony", "Freesia"],
-      base: ["Cashmere Musk", "White Patchouli", "Ambergris"]
-    },
-    variations: [
-      { id: "v-002-50", size: "50ml", price: 155, stock: 12, sku: "RTS-50ML" },
-      { id: "v-002-100", size: "100ml", price: 235, stock: 9, sku: "RTS-100ML" }
-    ],
-    rating: {
-      average: 4.8,
-      count: 19
-    },
+    notes: { top: ["Pink Pepper", "Italian Mandarin", "Lychee"], heart: ["Taif Rose Absolute", "Damask Peony", "Freesia"], base: ["Cashmere Musk", "White Patchouli", "Ambergris"] },
+    variations: [{ id: "v-002-50", size: "50ml", price: 155, stock: 12, sku: "RTS-50ML" }, { id: "v-002-100", size: "100ml", price: 235, stock: 9, sku: "RTS-100ML" }],
+    rating: { average: 4.8, count: 19 },
     createdAt: "2026-09-05T12:00:00.000Z"
   },
   {
@@ -64,20 +44,9 @@ export const INITIAL_PRODUCTS = [
     image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=900&q=80",
     isFeatured: true,
     isNew: false,
-    notes: {
-      top: ["Guatemalan Cardamom", "Violet Leaf", "Smoked Papyrus"],
-      heart: ["Florentine Orris Butter", "Virginian Cedarwood", "Amyris"],
-      base: ["Sandalwood Album", "White Amber", "Iso E Super"]
-    },
-    variations: [
-      { id: "v-003-30", size: "30ml Travel", price: 95, stock: 15, sku: "SSI-30ML" },
-      { id: "v-003-50", size: "50ml", price: 165, stock: 2, sku: "SSI-50ML" }, // Urgent low stock (< 3)
-      { id: "v-003-100", size: "100ml", price: 250, stock: 7, sku: "SSI-100ML" }
-    ],
-    rating: {
-      average: 5.0,
-      count: 34
-    },
+    notes: { top: ["Guatemalan Cardamom", "Violet Leaf", "Smoked Papyrus"], heart: ["Florentine Orris Butter", "Virginian Cedarwood", "Amyris"], base: ["Sandalwood Album", "White Amber", "Iso E Super"] },
+    variations: [{ id: "v-003-30", size: "30ml Travel", price: 95, stock: 15, sku: "SSI-30ML" }, { id: "v-003-50", size: "50ml", price: 165, stock: 2, sku: "SSI-50ML" }, { id: "v-003-100", size: "100ml", price: 250, stock: 7, sku: "SSI-100ML" }],
+    rating: { average: 5.0, count: 34 },
     createdAt: "2026-09-10T15:30:00.000Z"
   },
   {
@@ -91,19 +60,9 @@ export const INITIAL_PRODUCTS = [
     image: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=900&q=80",
     isFeatured: false,
     isNew: true,
-    notes: {
-      top: ["Calabrian Bergamot", "Bitter Orange", "Fleur de Sel"],
-      heart: ["Tunisian Neroli", "Rosemary", "Petitgrain"],
-      base: ["Haitian Vetiver", "White Musk", "Cedar Moss"]
-    },
-    variations: [
-      { id: "v-004-50", size: "50ml", price: 140, stock: 22, sku: "BSB-50ML" },
-      { id: "v-004-100", size: "100ml", price: 210, stock: 14, sku: "BSB-100ML" }
-    ],
-    rating: {
-      average: 4.7,
-      count: 15
-    },
+    notes: { top: ["Calabrian Bergamot", "Bitter Orange", "Fleur de Sel"], heart: ["Tunisian Neroli", "Rosemary", "Petitgrain"], base: ["Haitian Vetiver", "White Musk", "Cedar Moss"] },
+    variations: [{ id: "v-004-50", size: "50ml", price: 140, stock: 22, sku: "BSB-50ML" }, { id: "v-004-100", size: "100ml", price: 210, stock: 14, sku: "BSB-100ML" }],
+    rating: { average: 4.7, count: 15 },
     createdAt: "2026-09-12T09:15:00.000Z"
   },
   {
@@ -117,19 +76,9 @@ export const INITIAL_PRODUCTS = [
     image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=900&q=80",
     isFeatured: false,
     isNew: false,
-    notes: {
-      top: ["Cognac Accord", "Cinnamon Bark", "Bitter Nutmeg"],
-      heart: ["Tuscan Leather", "Blonde Tobacco", "Incense"],
-      base: ["Black Amber", "Oakmoss", "Benzoin Tears"]
-    },
-    variations: [
-      { id: "v-005-50", size: "50ml", price: 185, stock: 1, sku: "CIC-50ML" }, // Critical stock: 1 left!
-      { id: "v-005-100", size: "100ml", price: 280, stock: 0, sku: "CIC-100ML" } // Out of stock demonstration
-    ],
-    rating: {
-      average: 4.9,
-      count: 22
-    },
+    notes: { top: ["Cognac Accord", "Cinnamon Bark", "Bitter Nutmeg"], heart: ["Tuscan Leather", "Blonde Tobacco", "Incense"], base: ["Black Amber", "Oakmoss", "Benzoin Tears"] },
+    variations: [{ id: "v-005-50", size: "50ml", price: 185, stock: 1, sku: "CIC-50ML" }, { id: "v-005-100", size: "100ml", price: 280, stock: 0, sku: "CIC-100ML" }],
+    rating: { average: 4.9, count: 22 },
     createdAt: "2026-09-14T11:45:00.000Z"
   },
   {
@@ -143,21 +92,371 @@ export const INITIAL_PRODUCTS = [
     image: "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=900&q=80",
     isFeatured: true,
     isNew: false,
-    notes: {
-      top: ["Caramelized Pear", "Almond Blossom"],
-      heart: ["Praline Noir", "Orchid", "Heliotrope"],
-      base: ["Madagascar Vanilla Bean", "Sandalwood", "Amber"]
-    },
-    variations: [
-      { id: "v-006-50", size: "50ml", price: 150, stock: 8, sku: "VNG-50ML" },
-      { id: "v-006-100", size: "100ml", price: 225, stock: 5, sku: "VNG-100ML" }
-    ],
-    rating: {
-      average: 4.9,
-      count: 41
-    },
+    notes: { top: ["Caramelized Pear", "Almond Blossom"], heart: ["Praline Noir", "Orchid", "Heliotrope"], base: ["Madagascar Vanilla Bean", "Sandalwood", "Amber"] },
+    variations: [{ id: "v-006-50", size: "50ml", price: 150, stock: 8, sku: "VNG-50ML" }, { id: "v-006-100", size: "100ml", price: 225, stock: 5, sku: "VNG-100ML" }],
+    rating: { average: 4.9, count: 41 },
     createdAt: "2026-09-15T17:20:00.000Z"
+  },
+  {
+    id: "frag-007",
+    name: "Velvet Musk Embrace",
+    brand: "Maison d'Or",
+    subtitle: "Eau de Parfum • Soft Skin Musk",
+    gender: "Pour Femme",
+    fragranceFamily: "Woody",
+    description: "Silky musk, creamy sandalwood, and violet petals create an intimate signature with soft projection and a polished, modern finish.",
+    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+    isFeatured: true,
+    isNew: false,
+    notes: { top: ["Pear Blossom", "Pink Pepper"], heart: ["Violet", "White Woods", "Musk"], base: ["Sandalwood", "Ambroxan", "Cashmere Wood"] },
+    variations: [{ id: "v-007-50", size: "50ml", price: 138, stock: 21, sku: "VME-50ML" }, { id: "v-007-100", size: "100ml", price: 210, stock: 12, sku: "VME-100ML" }],
+    rating: { average: 4.8, count: 16 },
+    createdAt: "2026-09-18T10:30:00.000Z"
+  },
+  {
+    id: "frag-008",
+    name: "Midnight Amber Elixir",
+    brand: "Aura Atelier",
+    subtitle: "Extrait de Parfum • Amber Seduction",
+    gender: "Unisex",
+    fragranceFamily: "Oriental",
+    description: "Golden amber fused with incense smoke, cedarwood, and suede for a rich midnight aura that feels luxurious and vibrant.",
+    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80",
+    isFeatured: true,
+    isNew: false,
+    notes: { top: ["Mandarin", "Pink Pepper", "Labdanum"], heart: ["Saffron", "Incense", "Cinnamon"], base: ["Amber Resin", "Leather", "Cedarwood"] },
+    variations: [{ id: "v-008-50", size: "50ml", price: 170, stock: 10, sku: "MAE-50ML" }, { id: "v-008-100", size: "100ml", price: 255, stock: 6, sku: "MAE-100ML" }],
+    rating: { average: 4.9, count: 29 },
+    createdAt: "2026-09-19T12:35:00.000Z"
+  },
+  {
+    id: "frag-009",
+    name: "Citrus Bloom Veil",
+    brand: "Riviera Parfums",
+    subtitle: "Eau de Parfum • Radiant Bloom",
+    gender: "Pour Femme",
+    fragranceFamily: "Citrus Fresh",
+    description: "A radiant blend of grapefruit peel, orange blossom, and airy white florals with a soft musk finish that feels fresh and feminine.",
+    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Grapefruit", "Lemon Zest", "Neroli"], heart: ["Orange Blossom", "Jasmine", "Peony"], base: ["White Musk", "Cotton Woods", "Amber"] },
+    variations: [{ id: "v-009-50", size: "50ml", price: 125, stock: 18, sku: "CBV-50ML" }, { id: "v-009-100", size: "100ml", price: 195, stock: 9, sku: "CBV-100ML" }],
+    rating: { average: 4.7, count: 13 },
+    createdAt: "2026-09-20T15:20:00.000Z"
+  },
+  {
+    id: "frag-010",
+    name: "Sandalwood Silk Reserve",
+    brand: "Aura Atelier",
+    subtitle: "Eau de Parfum • Creamy Woods",
+    gender: "Unisex",
+    fragranceFamily: "Woody",
+    description: "Australian sandalwood, iris velvet, and tonka bean create a smooth and almost silk-like base with quiet confidence and elegance.",
+    image: "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=80",
+    isFeatured: true,
+    isNew: false,
+    notes: { top: ["Pear", "Pink Pepper", "Cardamom"], heart: ["Iris Butter", "Sandalwood", "Jasmine"], base: ["Tonka Bean", "Musk", "Vanilla"] },
+    variations: [{ id: "v-010-50", size: "50ml", price: 145, stock: 14, sku: "SSR-50ML" }, { id: "v-010-100", size: "100ml", price: 220, stock: 8, sku: "SSR-100ML" }],
+    rating: { average: 4.8, count: 18 },
+    createdAt: "2026-09-21T09:10:00.000Z"
+  },
+  {
+    id: "frag-011",
+    name: "Noir Woods Statement",
+    brand: "Maison d'Or",
+    subtitle: "Parfum • Bold Executive",
+    gender: "Pour Homme",
+    fragranceFamily: "Woody Oriental",
+    description: "Dark cedar, smoky vetiver, and cashmere woods create a commanding signature for evenings and special occasions.",
+    image: "https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Black Pepper", "Grapefruit", "Bergamot"], heart: ["Vetiver", "Cedarwood", "Nutmeg"], base: ["Amberwood", "Musk", "Patchouli"] },
+    variations: [{ id: "v-011-50", size: "50ml", price: 160, stock: 17, sku: "NWS-50ML" }, { id: "v-011-100", size: "100ml", price: 240, stock: 10, sku: "NWS-100ML" }],
+    rating: { average: 4.7, count: 14 },
+    createdAt: "2026-09-22T11:50:00.000Z"
+  },
+  {
+    id: "frag-012",
+    name: "Moonlit Petals",
+    brand: "Aura Atelier",
+    subtitle: "Eau de Parfum • Soft Floral Night",
+    gender: "Pour Femme",
+    fragranceFamily: "Floral",
+    description: "A luminous floral with iris, rose, and lilac shimmering against a soft vanilla skin drydown — dreamy and elegant.",
+    image: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: false,
+    notes: { top: ["Mandarin", "Bergamot", "Blackcurrant"], heart: ["Rose Petals", "Lilac", "Iris"], base: ["Vanilla Bean", "White Musk", "Amber"] },
+    variations: [{ id: "v-012-50", size: "50ml", price: 148, stock: 20, sku: "MP-50ML" }, { id: "v-012-100", size: "100ml", price: 228, stock: 7, sku: "MP-100ML" }],
+    rating: { average: 4.8, count: 19 },
+    createdAt: "2026-09-23T08:40:00.000Z"
+  },
+  {
+    id: "frag-013",
+    name: "Arabian Citrus Rush",
+    brand: "Riviera Parfums",
+    subtitle: "Eau de Parfum • Bright Unisex",
+    gender: "Pour Homme",
+    fragranceFamily: "Citrus Fresh",
+    description: "A crisp burst of lemon, green fig, and neroli with a warm woody base, made to feel fresh and confident in every season.",
+    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Lemon", "Orange Peel", "Green Fig"], heart: ["Neroli", "Basil", "Geranium"], base: ["Vetiver", "Cedarwood", "White Musk"] },
+    variations: [{ id: "v-013-50", size: "50ml", price: 129, stock: 22, sku: "ACR-50ML" }, { id: "v-013-100", size: "100ml", price: 198, stock: 8, sku: "ACR-100ML" }],
+    rating: { average: 4.6, count: 12 },
+    createdAt: "2026-09-24T13:05:00.000Z"
+  },
+  {
+    id: "frag-014",
+    name: "Golden Plum Whisper",
+    brand: "Aura Atelier",
+    subtitle: "Eau de Parfum • Fruity Silk",
+    gender: "Unisex",
+    fragranceFamily: "Gourmand",
+    description: "A lush plum and golden apricot opening softens into a warm amber and vanilla finish, elegant and polished for evening use.",
+    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Plum", "Apricot", "Pear"], heart: ["Jasmine Sambac", "Peony", "Rose"], base: ["Amber", "Vanilla", "White Musk"] },
+    variations: [{ id: "v-014-50", size: "50ml", price: 136, stock: 16, sku: "GPW-50ML" }, { id: "v-014-100", size: "100ml", price: 208, stock: 9, sku: "GPW-100ML" }],
+    rating: { average: 4.7, count: 17 },
+    createdAt: "2026-09-25T16:40:00.000Z"
+  },
+  {
+    id: "frag-015",
+    name: "Oud Cedar Aura",
+    brand: "Maison d'Or",
+    subtitle: "Parfum • Noble Wood Blend",
+    gender: "Pour Homme",
+    fragranceFamily: "Woody Oriental",
+    description: "A warm and expressive wood composition built with cedar, oud, and smoky resin for a rich and regal finish.",
+    image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=900&q=80",
+    isFeatured: true,
+    isNew: false,
+    notes: { top: ["Black Pepper", "Saffron", "Citrus"], heart: ["Cedarwood", "Oud", "Labdanum"], base: ["Resin", "Patchouli", "Amber"] },
+    variations: [{ id: "v-015-50", size: "50ml", price: 175, stock: 13, sku: "OCA-50ML" }, { id: "v-015-100", size: "100ml", price: 262, stock: 5, sku: "OCA-100ML" }],
+    rating: { average: 4.9, count: 26 },
+    createdAt: "2026-09-26T11:25:00.000Z"
+  },
+  {
+    id: "frag-016",
+    name: "Soft Rose Dusk",
+    brand: "Riviera Parfums",
+    subtitle: "Eau de Parfum • Velvet Rose",
+    gender: "Pour Femme",
+    fragranceFamily: "Floral",
+    description: "A silkier version of rose with peony, iris, and soft musk — romantic, airy, and glowing with evening warmth.",
+    image: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Pink Pepper", "Pear", "Rosewater"], heart: ["Damask Rose", "Peony", "Iris"], base: ["Musk", "Cashmere Wood", "Vanilla"] },
+    variations: [{ id: "v-016-50", size: "50ml", price: 142, stock: 19, sku: "SRD-50ML" }, { id: "v-016-100", size: "100ml", price: 218, stock: 11, sku: "SRD-100ML" }],
+    rating: { average: 4.8, count: 24 },
+    createdAt: "2026-09-27T12:05:00.000Z"
+  },
+  {
+    id: "frag-017",
+    name: "Amber Bloom Intense",
+    brand: "Aura Atelier",
+    subtitle: "Extrait de Parfum • Warm Floriental",
+    gender: "Unisex",
+    fragranceFamily: "Oriental",
+    description: "A sensual floral-amber blend with orange blossom, tonka bean, and warm woods, comforting and magnetic from first spray to drydown.",
+    image: "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=900&q=80",
+    isFeatured: true,
+    isNew: false,
+    notes: { top: ["Orange Blossom", "Bergamot", "Pink Pepper"], heart: ["Jasmine", "Rose", "Tuberose"], base: ["Tonka Bean", "Amber", "Cashmere Wood"] },
+    variations: [{ id: "v-017-50", size: "50ml", price: 165, stock: 9, sku: "ABI-50ML" }, { id: "v-017-100", size: "100ml", price: 248, stock: 7, sku: "ABI-100ML" }],
+    rating: { average: 4.9, count: 33 },
+    createdAt: "2026-09-28T09:30:00.000Z"
+  },
+  {
+    id: "frag-018",
+    name: "Rainwood Elite",
+    brand: "Maison d'Or",
+    subtitle: "Eau de Parfum • Urban Woods",
+    gender: "Pour Homme",
+    fragranceFamily: "Woody",
+    description: "Fresh rain notes, cedar, and smoky woods combine with patchouli for a distinctive urban scent that lasts beautifully.",
+    image: "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: false,
+    notes: { top: ["Rain Accord", "Bergamot", "Pepper"], heart: ["Cedarwood", "Patchouli", "Vetiver"], base: ["Musk", "Amberwood", "Dark Oak"] },
+    variations: [{ id: "v-018-50", size: "50ml", price: 152, stock: 12, sku: "RE-50ML" }, { id: "v-018-100", size: "100ml", price: 232, stock: 6, sku: "RE-100ML" }],
+    rating: { average: 4.7, count: 15 },
+    createdAt: "2026-09-29T14:45:00.000Z"
+  },
+  {
+    id: "frag-019",
+    name: "Peacock Bloom",
+    brand: "Riviera Parfums",
+    subtitle: "Eau de Parfum • Exotic Floral",
+    gender: "Pour Femme",
+    fragranceFamily: "Floral",
+    description: "Vivid florals, mango blossom, and creamy sandalwood create a lush exotic profile that feels bright and unforgettable.",
+    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Mango Blossom", "Pink Pepper", "Citrus"], heart: ["Peacock Orchid", "Rose", "Gardenia"], base: ["Sandalwood", "Musk", "Vanilla"] },
+    variations: [{ id: "v-019-50", size: "50ml", price: 149, stock: 18, sku: "PB-50ML" }, { id: "v-019-100", size: "100ml", price: 224, stock: 10, sku: "PB-100ML" }],
+    rating: { average: 4.6, count: 11 },
+    createdAt: "2026-09-30T10:15:00.000Z"
+  },
+  {
+    id: "frag-020",
+    name: "Velvet Oud Essence",
+    brand: "Aura Atelier",
+    subtitle: "Parfum • Velvet Woods",
+    gender: "Unisex",
+    fragranceFamily: "Woody Oriental",
+    description: "A prestigious oud accord wrapped in suede, tonka, and vanilla for a deep, smooth perfume with a refined finish.",
+    image: "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=80",
+    isFeatured: true,
+    isNew: true,
+    notes: { top: ["Blackcurrant", "Cedar Leaf", "Saffron"], heart: ["Velvet Oud", "Suede", "Jasmine"], base: ["Tonka Bean", "Vanilla", "Amberwood"] },
+    variations: [{ id: "v-020-50", size: "50ml", price: 178, stock: 11, sku: "VOE-50ML" }, { id: "v-020-100", size: "100ml", price: 268, stock: 7, sku: "VOE-100ML" }],
+    rating: { average: 5.0, count: 31 },
+    createdAt: "2026-10-01T18:15:00.000Z"
   }
+];
+
+const DEMO_OTHER_PRODUCTS = [
+  {
+    id: "deo-001",
+    name: "Oud Cedar Deodorant",
+    brand: "Aura Atelier",
+    subtitle: "Long-Wear Deodorant • Oud & Cedar",
+    gender: "Pour Homme",
+    productType: "deodorant",
+    fragranceFamily: "Woody Oriental",
+    description: "A refreshing daily deodorant with cedar, smooth oud, and a clean aromatic finish.",
+    image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Bergamot", "Black Pepper"], heart: ["Cedar", "Oud"], base: ["Musk", "Amber"] },
+    variations: [{ id: "v-deo-001", size: "150ml", price: 24, stock: 30, sku: "AOD-150" }],
+    rating: { average: 4.8, count: 18 },
+    createdAt: "2026-10-10T10:00:00.000Z"
+  },
+  {
+    id: "deo-002",
+    name: "Rose Veil Deodorant",
+    brand: "Maison d'Or",
+    subtitle: "Long-Wear Deodorant • Rose & Musk",
+    gender: "Pour Femme",
+    productType: "deodorant",
+    fragranceFamily: "Floral",
+    description: "A gentle, fresh deodorant scented with soft rose petals and airy white musk.",
+    image: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: false,
+    notes: { top: ["Pear", "Pink Pepper"], heart: ["Rose", "Peony"], base: ["White Musk", "Vanilla"] },
+    variations: [{ id: "v-deo-002", size: "150ml", price: 22, stock: 24, sku: "RVD-150" }],
+    rating: { average: 4.7, count: 12 },
+    createdAt: "2026-10-09T10:00:00.000Z"
+  },
+  {
+    id: "mist-001",
+    name: "Citrus Bloom Body Mist",
+    brand: "Riviera Parfums",
+    subtitle: "Refreshing Body Mist • Citrus & Neroli",
+    gender: "Pour Femme",
+    productType: "body-mist",
+    fragranceFamily: "Citrus Fresh",
+    description: "A light, refreshing mist with sparkling citrus, neroli blossom, and a soft musk finish.",
+    image: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Grapefruit", "Mandarin"], heart: ["Neroli", "Orange Blossom"], base: ["White Musk", "Cedar"] },
+    variations: [{ id: "v-mist-001", size: "200ml", price: 28, stock: 26, sku: "CBM-200" }],
+    rating: { average: 4.8, count: 15 },
+    createdAt: "2026-10-11T10:00:00.000Z"
+  },
+  {
+    id: "mist-002",
+    name: "Rainwood Body Mist",
+    brand: "Aura Atelier",
+    subtitle: "Refreshing Body Mist • Rain & Woods",
+    gender: "Unisex",
+    productType: "body-mist",
+    fragranceFamily: "Woody",
+    description: "A crisp everyday mist pairing rain-fresh accords with cedar and clean skin musk.",
+    image: "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: false,
+    notes: { top: ["Rain Accord", "Bergamot"], heart: ["Cedar", "Vetiver"], base: ["Musk", "Amberwood"] },
+    variations: [{ id: "v-mist-002", size: "200ml", price: 26, stock: 22, sku: "RWM-200" }],
+    rating: { average: 4.6, count: 9 },
+    createdAt: "2026-10-08T10:00:00.000Z"
+  },
+  {
+    id: "gift-001",
+    name: "Oud & Amber Gift Collection",
+    brand: "Aura Atelier",
+    subtitle: "Three-Piece Gift Set • Oud Royale Edit",
+    gender: "Unisex",
+    productType: "gift-set",
+    fragranceFamily: "Woody Oriental",
+    description: "A gift-ready trio featuring an oud fragrance, a travel spray, and a matching scented candle.",
+    image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Saffron", "Bergamot"], heart: ["Amberwood", "Cedar"], base: ["Oud", "Vanilla"] },
+    variations: [{ id: "v-gift-001", size: "3-piece set", price: 245, stock: 12, sku: "OAG-3PC" }],
+    rating: { average: 4.9, count: 14 },
+    createdAt: "2026-10-12T10:00:00.000Z"
+  },
+  {
+    id: "gift-002",
+    name: "Rose de Taif Gift Set",
+    brand: "Maison d'Or",
+    subtitle: "Two-Piece Gift Set • Rose & Silk",
+    gender: "Pour Femme",
+    productType: "gift-set",
+    fragranceFamily: "Floral",
+    description: "A presentation-box pairing of Rose de Taif Eau de Parfum and a matching travel spray.",
+    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: false,
+    notes: { top: ["Pink Pepper", "Lychee"], heart: ["Taif Rose", "Peony"], base: ["Cashmere Musk", "Amber"] },
+    variations: [{ id: "v-gift-002", size: "2-piece set", price: 188, stock: 10, sku: "RTG-2PC" }],
+    rating: { average: 4.8, count: 11 },
+    createdAt: "2026-10-07T10:00:00.000Z"
+  },
+  {
+    id: "gift-003",
+    name: "The Discovery Gift Box",
+    brand: "Riviera Parfums",
+    subtitle: "Five-Piece Gift Set • Fragrance Discovery",
+    gender: "Unisex",
+    productType: "gift-set",
+    fragranceFamily: "Oriental",
+    description: "Five travel-sized scents across fresh, floral, woody, and warm amber profiles, packed for gifting.",
+    image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=900&q=80",
+    isFeatured: false,
+    isNew: true,
+    notes: { top: ["Citrus", "Pink Pepper"], heart: ["Rose", "Jasmine"], base: ["Sandalwood", "Amber"] },
+    variations: [{ id: "v-gift-003", size: "5-piece set", price: 132, stock: 18, sku: "DGB-5PC" }],
+    rating: { average: 4.9, count: 20 },
+    createdAt: "2026-10-13T10:00:00.000Z"
+  }
+];
+
+const bestSellerIds = new Set(["frag-001", "frag-002", "frag-006", "frag-015", "frag-017"]);
+const trendingIds = new Set(["frag-003", "frag-008", "frag-010", "frag-020"]);
+
+export const INITIAL_PRODUCTS = [
+  ...DEMO_FRAGRANCES.map(product => ({
+    ...product,
+    productType: "fragrance",
+    isSignature: product.isFeatured,
+    isBestseller: bestSellerIds.has(product.id),
+    isTrending: trendingIds.has(product.id)
+  })),
+  ...DEMO_OTHER_PRODUCTS
 ];
 
 export const INITIAL_REVIEWS = [
@@ -226,7 +525,7 @@ export const INITIAL_ORDERS = [
     subtotal: 265,
     shipping: 0,
     total: 265,
-    status: "preparing", // pending | confirmed | preparing | shipped | rejected
+    status: "preparing",
     paymentMethod: "Credit Card (Secure Stripe)",
     paymentStatus: "paid",
     whatsappNotified: true,

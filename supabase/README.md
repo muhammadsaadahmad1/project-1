@@ -74,7 +74,7 @@ a `VITE_` variable.
 2. Set Edge Function secrets; never put these in a `VITE_` variable:
 
     ```sh
-    supabase secrets set RESEND_API_KEY=re_... ORDER_CONFIRMATION_FROM="AURA PARFUMS <orders@your-verified-domain.com>"
+    supabase secrets set RESEND_API_KEY=re_... ORDER_CONFIRMATION_FROM="AURA PARFUMES <orders@your-verified-domain.com>"
     ```
 
 3. Deploy the function:

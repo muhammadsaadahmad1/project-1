@@ -1,9 +1,9 @@
-// WhatsApp Business API Integration & Message Generator for AURA PARFUMS
+// WhatsApp Business API Integration & Message Generator for AURA PARFUMES
 
 /**
  * Format order details into a luxury WhatsApp Business message template
  */
-export const formatWhatsAppOrderMessage = (order, businessName = "AURA PARFUMS") => {
+export const formatWhatsAppOrderMessage = (order, businessName = "AURA PARFUMES") => {
   const itemsText = order.items.map((item, idx) => {
     return `${idx + 1}. *${item.productName}* (${item.size})\n   Qty: ${item.quantity} × $${item.price} = *$${item.quantity * item.price}*`;
   }).join("\n\n");
@@ -69,12 +69,12 @@ export const formatCustomerStatusMessage = (order, newStatus) => {
 ──────────────────────────
 Dear ${order.customer.name},
 
-Your order *#${order.id}* at *AURA PARFUMS* is now: *${newStatus.toUpperCase()}*.
+Your order *#${order.id}* at *AURA PARFUMES* is now: *${newStatus.toUpperCase()}*.
 
 🛍️ *Summary:* ${order.items.map(i => `${i.productName} (${i.size}) x${i.quantity}`).join(", ")}
 💎 *Total:* $${order.total}
 
-Thank you for choosing AURA PARFUMS. Our concierge team is at your disposal for any bespoke requests.`;
+Thank you for choosing AURA PARFUMES. Our concierge team is at your disposal for any bespoke requests.`;
 };
 
 /**
