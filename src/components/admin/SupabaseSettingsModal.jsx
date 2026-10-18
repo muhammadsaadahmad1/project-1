@@ -6,6 +6,8 @@ import { useStore } from "../../context/StoreContext";
 export const SupabaseSettingsModal = () => {
   const { settings, setSettings } = useStore();
   const [whatsappNumber, setWhatsappNumber] = useState(settings?.adminWhatsappNumber || "+923159146234");
+  const [contactEmail, setContactEmail] = useState(settings?.contactEmail || "");
+  const [officePhone, setOfficePhone] = useState(settings?.officePhone || "");
   const [freeShipping, setFreeShipping] = useState(settings?.freeShippingThreshold || 150);
   const [savedNotice, setSavedNotice] = useState(false);
 
@@ -14,6 +16,8 @@ export const SupabaseSettingsModal = () => {
     setSettings(previous => ({
       ...previous,
       adminWhatsappNumber: whatsappNumber.trim(),
+      contactEmail: contactEmail.trim(),
+      officePhone: officePhone.trim(),
       freeShippingThreshold: Number(freeShipping)
     }));
     setSavedNotice(true);
@@ -70,13 +74,21 @@ export const SupabaseSettingsModal = () => {
           <span>Boutique Operational Settings</span>
         </h4>
         <p style={{ fontSize: "0.8rem", color: "#a1a1aa", marginBottom: "1.2rem" }}>
-          Manage the concierge WhatsApp number, complimentary courier threshold, and inventory alert threshold.
+          Manage the boutique contact details and complimentary courier settings.
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "1.2rem", marginBottom: "1.5rem" }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Admin WhatsApp Number</label>
             <input type="tel" className="form-input" required value={whatsappNumber} onChange={event => setWhatsappNumber(event.target.value)} placeholder="+923159146234" />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Company Email</label>
+            <input type="email" className="form-input" value={contactEmail} onChange={event => setContactEmail(event.target.value)} placeholder="hello@auraparfumes.com" />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Office Phone</label>
+            <input type="tel" className="form-input" value={officePhone} onChange={event => setOfficePhone(event.target.value)} placeholder="+92 ..." />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Free Courier Threshold ($)</label>

@@ -566,6 +566,8 @@ export const APP_SETTINGS = {
   currencySymbol: "$",
   currencyCode: "USD",
   adminWhatsappNumber: "+923159146234",
+  contactEmail: "",
+  officePhone: "",
   lowStockThreshold: 5,
   freeShippingThreshold: 150,
   requireReviewModeration: false

@@ -33,9 +33,44 @@ import {
   Heart,
   Trash2,
   X,
-  Eye
+  Eye,
+  MessageCircle
 } from "lucide-react";
 import { useCart } from "./context/CartContext";
+
+const FloatingWhatsAppButton = () => {
+  const { settings } = useStore();
+  const whatsappNumber = settings?.adminWhatsappNumber || "+923159146234";
+  const whatsappLink = `https://wa.me/${whatsappNumber.replace(/\D/g, "")}`;
+
+  return (
+    <a
+      href={whatsappLink}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`Contact us on WhatsApp at ${whatsappNumber}`}
+      title={`Chat on WhatsApp: ${whatsappNumber}`}
+      style={{
+        position: "fixed",
+        right: "1.25rem",
+        bottom: "5.8rem",
+        zIndex: 1290,
+        width: "3.25rem",
+        height: "3.25rem",
+        borderRadius: "50%",
+        background: "linear-gradient(135deg, #25d366 0%, #1ea85d 100%)",
+        border: "1px solid rgba(255,255,255,0.2)",
+        display: "grid",
+        placeItems: "center",
+        boxShadow: "0 14px 30px rgba(37, 211, 102, 0.35)",
+        color: "#fff",
+        textDecoration: "none"
+      }}
+    >
+      <MessageCircle size={20} color="#fff" />
+    </a>
+  );
+};
 
 const FloatingCartButton = () => {
   const { totalItemsCount, setIsCartOpen, subtotal } = useCart();
@@ -254,6 +289,7 @@ const MainStorefront = () => {
         onWishlistClick={() => setIsWishlistOpen(true)}
       />
 
+      <FloatingWhatsAppButton />
       <FloatingCartButton />
       <HeroBanner onSelectProduct={setSelectedProduct} />
 
@@ -307,7 +343,7 @@ const MainStorefront = () => {
         </div>
       </section>
 
-      <section style={{ padding: "2rem 0" }}>
+      <section id="best-sellers" style={{ padding: "2rem 0", scrollMarginTop: "190px" }}>
         <div className="container">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
             <div>
@@ -322,7 +358,7 @@ const MainStorefront = () => {
         </div>
       </section>
 
-      <section style={{ padding: "2rem 0" }}>
+      <section id="gift-sets" style={{ padding: "2rem 0", scrollMarginTop: "190px" }}>
         <div className="container">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
             <div>
@@ -421,7 +457,21 @@ const MainStorefront = () => {
         </div>
       </section>
 
-      <footer style={{ background: "#180d0a", borderTop: "1px solid rgba(121,74,35,0.15)", padding: "4rem 0 2rem 0", color: "#bfa999" }}>
+      <section id="about-us" style={{ padding: "4rem 0", background: "#eee3d7", scrollMarginTop: "190px" }}>
+        <div className="container" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: "clamp(1.5rem, 5vw, 5rem)", alignItems: "start" }}>
+          <div>
+            <div style={{ fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#8b5f3a", fontWeight: 700 }}>Our House</div>
+            <h2 style={{ marginTop: "0.5rem", fontSize: "clamp(2.2rem, 4vw, 3.8rem)", lineHeight: 0.95, color: "#2a1d17" }}>A story told in scent.</h2>
+          </div>
+          <div style={{ maxWidth: "680px", color: "#514137", fontSize: "0.98rem", lineHeight: 1.9 }}>
+            <p>AURA PARFUMES is an independent fragrance house shaped by a lasting fascination with the way scent holds memory, mood, and identity.</p>
+            <p style={{ marginTop: "1rem" }}>Our approach brings together characterful compositions, thoughtful curation, and the rituals of modern perfumery. From luminous florals to deep woods and amber, each selection is chosen to become part of a personal story, not simply an accessory.</p>
+            <p style={{ marginTop: "1rem" }}>We continue to build our collection with the same point of view: considered, expressive fragrances made for the moments people want to remember.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer id="contact" style={{ background: "#180d0a", borderTop: "1px solid rgba(121,74,35,0.15)", padding: "4rem 0 2rem 0", color: "#bfa999", scrollMarginTop: "190px" }}>
         <div className="container">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2.5rem", marginBottom: "3rem" }}>
             <div>
@@ -440,9 +490,11 @@ const MainStorefront = () => {
             </div>
 
             <div>
-              <h5 style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#f4d5a7", marginBottom: "1rem" }}>Boutique Services</h5>
-              <ul style={{ listStyle: "none", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <li>Order updates are sent by email when provided.</li>
+              <h5 style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#f4d5a7", marginBottom: "1rem" }}>Contact the House</h5>
+              <ul style={{ listStyle: "none", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                <li>Email: {settings?.contactEmail ? <a href={`mailto:${settings.contactEmail}`} style={{ color: "#f3e7da" }}>{settings.contactEmail}</a> : "Not yet provided"}</li>
+                <li>WhatsApp: <a href={`https://wa.me/${(settings?.adminWhatsappNumber || "+923159146234").replace(/\D/g, "")}`} target="_blank" rel="noreferrer" style={{ color: "#f3e7da" }}>{settings?.adminWhatsappNumber || "+92 315-9146234"}</a></li>
+                <li>Office: {settings?.officePhone ? <a href={`tel:${settings.officePhone}`} style={{ color: "#f3e7da" }}>{settings.officePhone}</a> : "Not yet provided"}</li>
               </ul>
             </div>
 
