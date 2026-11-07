@@ -37,6 +37,7 @@ import {
   MessageCircle
 } from "lucide-react";
 import { useCart } from "./context/CartContext";
+import { getSearchRecommendations, productMatchesSearch } from "./lib/searchRecommendations";
 
 const FloatingWhatsAppButton = () => {
   const { settings } = useStore();
@@ -152,6 +153,10 @@ const MainStorefront = () => {
     localStorage.setItem("aura_wishlist", JSON.stringify(wishlistIds));
   }, [wishlistIds]);
 
+  const searchRecommendations = useMemo(() => {
+    return getSearchRecommendations(products, searchTerm, 6);
+  }, [products, searchTerm]);
+
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const productType = p.productType || "fragrance";
@@ -166,19 +171,7 @@ const MainStorefront = () => {
         selectedGender === "All" ||
         p.gender?.toLowerCase() === selectedGender.toLowerCase();
 
-      const term = searchTerm.toLowerCase().trim();
-      const notesList = [
-        ...(p.notes?.top || []),
-        ...(p.notes?.heart || []),
-        ...(p.notes?.base || [])
-      ].join(" ").toLowerCase();
-
-      const matchesSearch =
-        !term ||
-        p.name.toLowerCase().includes(term) ||
-        p.brand.toLowerCase().includes(term) ||
-        p.fragranceFamily?.toLowerCase().includes(term) ||
-        notesList.includes(term);
+      const matchesSearch = productMatchesSearch(p, searchTerm);
 
       const lowestPrice = Math.min(...(p.variations?.map(v => v.price) || [0]));
       const matchesPrice = lowestPrice <= maxPriceFilter;
@@ -276,6 +269,7 @@ const MainStorefront = () => {
         setSelectedFamily={setSelectedFamily}
         setSelectedProductType={setSelectedProductType}
         setSelectedGender={setSelectedGender}
+        searchSuggestions={searchRecommendations}
         onFamilySelect={(family) => {
           setSearchTerm("");
           setSelectedProductType("fragrance");
