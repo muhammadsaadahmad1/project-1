@@ -102,19 +102,11 @@ export const Navbar = ({
         <nav className="store-primary-nav" aria-label="Main navigation">
           <div
             className="collection-nav-trigger"
-            onMouseEnter={() => {
-              clearCollectionCloseTimer();
-              setIsCollectionOpen(true);
-            }}
             onMouseLeave={(event) => {
               const nextTarget = event.relatedTarget;
               if (!nextTarget || !event.currentTarget.contains(nextTarget)) {
                 handleCollectionMouseLeave();
               }
-            }}
-            onFocus={() => {
-              clearCollectionCloseTimer();
-              setIsCollectionOpen(true);
             }}
             onBlur={(event) => {
               const nextTarget = event.relatedTarget;
@@ -126,9 +118,8 @@ export const Navbar = ({
             <button
               type="button"
               className="collection-trigger"
-              onMouseEnter={() => {
-                clearCollectionCloseTimer();
-                setIsCollectionOpen(true);
+              onClick={() => {
+                setIsCollectionOpen((open) => !open);
               }}
               aria-expanded={isCollectionOpen}
               aria-controls="collection-menu"
@@ -256,6 +247,47 @@ export const Navbar = ({
           .collection-menu { width: calc(100% - 2rem); grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1.2rem; }
           .collection-menu button { font-size: 0.82rem; }
           .announcement-copy { font-size: 0.65rem; }
+        }
+
+        @media (max-width: 640px) {
+          .announcement-bar { font-size: 0.62rem; letter-spacing: 0.09em; }
+          .announcement-copy { gap: 0.45rem; padding: 0 1.2rem; }
+          .store-header-main { gap: 0.6rem; }
+          .store-brand { gap: 0.45rem; }
+          .store-brand-mark { width: 30px; height: 30px; font-size: 1.2rem; }
+          .store-brand-name { letter-spacing: 0.08em; font-size: 0.9rem; }
+          .store-primary-nav {
+            width: 100%;
+            justify-content: flex-start;
+            gap: 0.8rem;
+            padding-bottom: 0.2rem;
+            overflow: visible;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          .store-primary-nav::-webkit-scrollbar { display: none; }
+          .store-primary-nav button {
+            flex: 0 0 auto;
+            padding: 0.55rem 0;
+            font-size: 0.58rem;
+            letter-spacing: 0.09em;
+          }
+          .collection-menu {
+            position: absolute;
+            left: 0;
+            top: calc(100% + 0.55rem);
+            width: min(92vw, 420px);
+            min-width: 0;
+            transform: none;
+            animation: none;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1rem 1.1rem;
+          }
+          .store-header-actions { gap: 0.4rem; }
+          .btn-icon { width: 36px; height: 36px; }
+          .store-search-panel { padding: 0 0.8rem 0.8rem; }
+          .store-search-panel form { max-width: 100%; }
         }
         @media (prefers-reduced-motion: reduce) { .announcement-track { animation: none; } }
       `}</style>

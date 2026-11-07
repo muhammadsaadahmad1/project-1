@@ -29,14 +29,12 @@ export const CartDrawer = () => {
   if (!isCartOpen) return null;
 
   return (
-    <div className="modal-backdrop" onClick={() => setIsCartOpen(false)} style={{ justifyContent: "flex-end", alignItems: "flex-end", padding: "1.25rem", background: "rgba(0, 0, 0, 0.2)" }}>
+    <div className="modal-backdrop" onClick={() => setIsCartOpen(false)} style={{ justifyContent: "flex-end", alignItems: "flex-end", padding: "1rem", background: "rgba(0, 0, 0, 0.2)" }}>
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
-          position: "fixed",
-          right: "1.25rem",
-          bottom: "1.25rem",
-          width: "100%",
+          position: "relative",
+          width: "min(340px, 100%)",
           maxWidth: "420px",
           height: "min(78vh, 760px)",
           background: "var(--bg-surface)",
