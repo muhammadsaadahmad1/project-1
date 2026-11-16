@@ -68,15 +68,15 @@ export const OrderSuccessModal = ({ order, onClose }) => {
           <CheckCircle size={38} color="#34d399" />
         </div>
 
-        <span style={{ fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--gold-400)", fontWeight: 600 }}>
+        <span style={{ fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--gold-700)", fontWeight: 600 }}>
           Artisanal Flacon Allocated
         </span>
 
-        <h2 style={{ fontSize: "2.2rem", color: "#fff", marginTop: "0.2rem", marginBottom: "0.5rem" }}>
+        <h2 style={{ fontSize: "2.2rem", color: "#1f1b17", marginTop: "0.2rem", marginBottom: "0.5rem" }}>
           Order #{order.id} Placed
         </h2>
 
-        <p style={{ fontSize: "0.92rem", color: "#a1a1aa", maxWidth: "480px", margin: "0 auto 1.8rem auto", lineHeight: 1.6 }}>
+        <p style={{ fontSize: "0.92rem", color: "#1f1b17", maxWidth: "480px", margin: "0 auto 1.8rem auto", lineHeight: 1.6 }}>
           Your fragrances are reserved. Send your order details to our team on WhatsApp so they can confirm and prepare your order.
         </p>
 
@@ -123,20 +123,20 @@ export const OrderSuccessModal = ({ order, onClose }) => {
         </div>
 
         {/* Order Details Brief */}
-        <div className="glass-panel" style={{ padding: "1.2rem", textAlign: "left", marginBottom: "1.8rem", background: "rgba(255, 255, 255, 0.02)" }}>
+        <div className="glass-panel" style={{ padding: "1.2rem", textAlign: "left", marginBottom: "1.8rem", background: "var(--bg-surface-elevated)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem", fontSize: "0.82rem" }}>
-            <span style={{ color: "#71717a" }}>Customer:</span>
-            <span style={{ color: "#fff", fontWeight: 500 }}>{order.customer.name} ({order.customer.phone})</span>
+            <span style={{ color: "#1f1b17" }}>Customer:</span>
+            <span style={{ color: "#1f1b17", fontWeight: 500 }}>{order.customer.name} ({order.customer.phone})</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem", fontSize: "0.82rem" }}>
-            <span style={{ color: "#71717a" }}>Creations:</span>
-            <span style={{ color: "var(--gold-300)" }}>
+            <span style={{ color: "#1f1b17" }}>Creations:</span>
+            <span style={{ color: "#1f1b17" }}>
               {order.items.map(i => `${i.productName} (${i.size}) x${i.quantity}`).join(", ")}
             </span>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: "0.5rem" }}>
-            <span style={{ color: "#71717a" }}>Total Amount:</span>
-            <span style={{ color: "#fff", fontWeight: 700 }}>${order.total} ({order.paymentMethod})</span>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", borderTop: "1px solid rgba(82, 51, 36, 0.18)", paddingTop: "0.5rem" }}>
+            <span style={{ color: "#1f1b17" }}>Total Amount:</span>
+            <span style={{ color: "#1f1b17", fontWeight: 700 }}>${order.total} ({order.paymentMethod})</span>
           </div>
         </div>
 
