@@ -80,7 +80,7 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
   return (
     <div className="modal-backdrop" onClick={() => setIsCheckoutOpen(false)}>
       <div 
-        className="modal-content"
+        className="modal-content checkout-modal"
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
@@ -101,7 +101,7 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
           <span style={{ fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--gold-400)", fontWeight: 600 }}>
             Guest Checkout & Inventory Allocation
           </span>
-          <h2 style={{ fontSize: "2rem", color: "#fff", marginTop: "0.2rem" }}>
+          <h2 style={{ fontSize: "2rem", color: "#1f1b17", marginTop: "0.2rem" }}>
             Secure Your Artisanal Creation
           </h2>
         </div>
@@ -124,7 +124,7 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
             {/* Left Column: Customer & Delivery Details */}
             <div>
-              <h4 style={{ fontSize: "1rem", color: "#fff", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <h4 style={{ fontSize: "1rem", color: "#1f1b17", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <MapPin size={16} color="var(--gold-400)" />
                 <span>Patron & Delivery Information</span>
               </h4>
@@ -193,39 +193,39 @@ export const CheckoutModal = ({ onOrderPlaced }) => {
 
             {/* Right Column: Payment & Order Summary */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <h4 style={{ fontSize: "1rem", color: "#fff", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <h4 style={{ fontSize: "1rem", color: "#1f1b17", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <CreditCard size={16} color="var(--gold-400)" />
                 <span>Payment & Allocation</span>
               </h4>
 
-              <div className="glass-panel" style={{ padding: "1rem", marginBottom: "1.2rem", background: "rgba(10, 10, 12, 0.6)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.55rem", color: "#fff", fontWeight: 600 }}>
+              <div className="glass-panel" style={{ padding: "1rem", marginBottom: "1.2rem", background: "var(--bg-surface-elevated)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.55rem", color: "#1f1b17", fontWeight: 600 }}>
                   <Truck size={16} color="var(--gold-400)" />
                   <span>Cash on delivery</span>
                 </div>
-                <p style={{ color: "#a1a1aa", fontSize: "0.78rem", margin: "0.45rem 0 0" }}>Payment is collected by the courier when your order arrives.</p>
+                <p style={{ color: "#1f1b17", fontSize: "0.78rem", margin: "0.45rem 0 0" }}>Payment is collected by the courier when your order arrives.</p>
               </div>
 
               {/* Order Summary Box */}
-              <div className="glass-panel" style={{ padding: "1.25rem", marginTop: "auto", background: "rgba(0, 0, 0, 0.3)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", fontSize: "0.85rem", color: "#a1a1aa" }}>
+              <div className="glass-panel" style={{ padding: "1.25rem", marginTop: "auto", background: "var(--bg-surface-elevated)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", fontSize: "0.85rem", color: "#1f1b17" }}>
                   <span>{items.reduce((s, i) => s + i.quantity, 0)} Items Selected</span>
                   <span>${subtotal}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem", fontSize: "0.85rem", color: "#a1a1aa" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem", fontSize: "0.85rem", color: "#1f1b17" }}>
                   <span>Courier Delivery</span>
                   <span>{shipping === 0 ? "Complimentary" : `$${shipping}`}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "0.6rem", borderTop: "1px solid rgba(255, 255, 255, 0.08)", fontSize: "1.2rem", fontWeight: 700, color: "#fff" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "0.6rem", borderTop: "1px solid rgba(82, 51, 36, 0.18)", fontSize: "1.2rem", fontWeight: 700, color: "#1f1b17" }}>
                   <span>Payable Amount</span>
-                  <span className="gold-text">${total}</span>
+                  <span>${total}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div style={{ marginTop: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.76rem", color: "#a1a1aa" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.76rem", color: "#1f1b17" }}>
               <Lock size={14} color="var(--gold-400)" />
               <span>Real-time inventory will be automatically allocated upon confirmation.</span>
             </div>

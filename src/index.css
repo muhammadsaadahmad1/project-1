@@ -296,6 +296,21 @@ h1, h2, h3, h4, .font-serif {
   animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.checkout-modal .form-label {
+  color: #0f0c0a;
+}
+
+.checkout-modal .form-input,
+.checkout-modal .form-textarea {
+  background: #fff;
+  color: #0e0c0b;
+}
+
+.checkout-modal .form-input::placeholder,
+.checkout-modal .form-textarea::placeholder {
+  color: #6b6259;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
