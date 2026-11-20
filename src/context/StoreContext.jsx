@@ -22,13 +22,15 @@ import {
   updateStock as updateSupabaseStock
 } from "../services/storeApi";
 
+const mergeDemoRecords = (remoteRecords, demoRecords) => {
+  const remoteIds = new Set(remoteRecords.map(record => record.id));
+  return [...remoteRecords, ...demoRecords.filter(record => !remoteIds.has(record.id))];
+};
+
 const syncDemoCatalogMetadata = (catalog) => {
   if (!catalog.length) return INITIAL_PRODUCTS;
 
   const demoById = new Map(INITIAL_PRODUCTS.map(product => [product.id, product]));
-  const containsKnownDemo = catalog.some(product => demoById.has(product.id));
-  if (!containsKnownDemo) return catalog;
-
   const catalogIds = new Set(catalog.map(product => product.id));
   const refreshedCatalog = catalog.map(product => {
     const demo = demoById.get(product.id);
@@ -41,11 +43,9 @@ const syncDemoCatalogMetadata = (catalog) => {
       isTrending: product.isTrending ?? demo.isTrending
     };
   });
-  const missingDepartmentDemos = INITIAL_PRODUCTS.filter(product =>
-    product.productType !== "fragrance" && !catalogIds.has(product.id)
-  );
+  const missingDemoCatalog = INITIAL_PRODUCTS.filter(product => !catalogIds.has(product.id));
 
-  return [...refreshedCatalog, ...missingDepartmentDemos];
+  return [...refreshedCatalog, ...missingDemoCatalog];
 };
 
 const StoreContext = createContext();
@@ -62,13 +62,13 @@ export const StoreProvider = ({ children }) => {
   });
 
   const [reviews, setReviews] = useState(() => {
-    if (isSupabaseConfigured) return [];
+    if (isSupabaseConfigured) return INITIAL_REVIEWS;
     const saved = localStorage.getItem("aura_reviews");
     return saved ? JSON.parse(saved) : INITIAL_REVIEWS;
   });
 
   const [orders, setOrders] = useState(() => {
-    if (isSupabaseConfigured) return [];
+    if (isSupabaseConfigured) return isAdmin ? INITIAL_ORDERS : [];
     const saved = localStorage.getItem("aura_orders");
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
@@ -130,8 +130,14 @@ export const StoreProvider = ({ children }) => {
           const remoteProducts = await fetchProducts();
           setProducts(syncDemoCatalogMetadata(remoteProducts));
         }
-        if (table === "reviews") setReviews(await fetchReviews());
-        if (table === "orders" && isAdmin) setOrders(await fetchOrders());
+        if (table === "reviews") {
+          const remoteReviews = await fetchReviews();
+          setReviews(mergeDemoRecords(remoteReviews, INITIAL_REVIEWS));
+        }
+        if (table === "orders" && isAdmin) {
+          const remoteOrders = await fetchOrders();
+          setOrders(isAdmin ? mergeDemoRecords(remoteOrders, INITIAL_ORDERS) : []);
+        }
       } catch (error) {
         console.warn(`Supabase ${table} load failed:`, error.message);
       }
@@ -146,8 +152,8 @@ export const StoreProvider = ({ children }) => {
       .then(([remoteProducts, remoteReviews, remoteOrders, remoteSettings]) => {
         if (!active) return;
         setProducts(syncDemoCatalogMetadata(remoteProducts));
-        if (remoteReviews.length) setReviews(remoteReviews);
-        setOrders(remoteOrders);
+        setReviews(mergeDemoRecords(remoteReviews, INITIAL_REVIEWS));
+        setOrders(isAdmin ? mergeDemoRecords(remoteOrders, INITIAL_ORDERS) : []);
         if (remoteSettings) {
           delete remoteSettings.adminPasscode;
           setSettings(prev => ({ ...prev, ...remoteSettings }));
@@ -236,7 +242,7 @@ export const StoreProvider = ({ children }) => {
     if (isSupabaseConfigured) {
       const savedOrder = await placeSupabaseOrder(orderData);
       setOrders(prev => [savedOrder, ...prev.filter(order => order.id !== savedOrder.id)]);
-      setProducts(await fetchProducts());
+      setProducts(syncDemoCatalogMetadata(await fetchProducts()));
       return savedOrder;
     }
 

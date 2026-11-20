@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { APP_SETTINGS, INITIAL_PRODUCTS } from "../src/data/initialProducts.js";
+import { APP_SETTINGS, INITIAL_PRODUCTS, INITIAL_REVIEWS, INITIAL_ORDERS } from "../src/data/initialProducts.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -28,3 +28,29 @@ console.log(`Seeded ${products.length} products.`);
 const { error: settingsError } = await supabase.from("store_settings").upsert({ id: "main", data: settings });
 if (settingsError) throw new Error(`Failed to seed store settings: ${settingsError.message}`);
 console.log("Seeded store settings.");
+
+// Seed reviews
+const reviews = INITIAL_REVIEWS.map(review => ({
+  id: review.id,
+  product_id: review.productId,
+  status: review.status || "approved",
+  data: review,
+  created_at: review.createdAt
+}));
+
+const { error: reviewsError } = await supabase.from("reviews").upsert(reviews);
+if (reviewsError) throw new Error(`Failed to seed reviews: ${reviewsError.message}`);
+console.log(`Seeded ${reviews.length} reviews.`);
+
+// Seed orders
+const orders = INITIAL_ORDERS.map(order => ({
+  id: order.id,
+  status: order.status || "pending",
+  payment_status: order.paymentStatus || "pending",
+  data: order,
+  created_at: order.createdAt
+}));
+
+const { error: ordersError } = await supabase.from("orders").upsert(orders);
+if (ordersError) throw new Error(`Failed to seed orders: ${ordersError.message}`);
+console.log(`Seeded ${orders.length} orders.`);
