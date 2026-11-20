@@ -1,5 +1,14 @@
+import { readFileSync, existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { APP_SETTINGS, INITIAL_PRODUCTS, INITIAL_REVIEWS, INITIAL_ORDERS } from "../src/data/initialProducts.js";
+
+if (!process.env.VITE_SUPABASE_URL && existsSync(".env.local")) {
+  const envFile = readFileSync(".env.local", "utf8");
+  for (const line of envFile.split(/\r?\n/)) {
+    const match = line.match(/^\s*(VITE_SUPABASE_URL|VITE_SUPABASE_ANON_KEY)\s*=\s*(.*?)\s*$/);
+    if (match) process.env[match[1]] = match[2].replace(/^['"]|['"]$/g, "");
+  }
+}
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
